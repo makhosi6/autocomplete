@@ -2,16 +2,18 @@
   "name": "autocomplete",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
+    "compile:watch": "tsc -w",
     "fix": "gts fix",
     "prepare": "npm.cmd run compile",
     "pretest": "npm.cmd run compile",
-    "posttest": "npm.cmd run lint"
+    "posttest": "npm.cmd run lint",
+    "dev": "node build/src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,8 @@
     "express": "^4.17.2",
     "express-ws": "^5.0.2",
     "redis": "^4.3.1",
-    "ws": "^8.5.0"
+    "ws": "^8.5.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "gts": "^3.1.1",
