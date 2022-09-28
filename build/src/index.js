@@ -6,6 +6,7 @@ const express = require('express');
 const expressWs = require('express-ws');
 const http = require('http'); // change to https
 const timeout = require('connect-timeout');
+const compression = require('compression');
 // Our port
 const port = 3001;
 /// set DB client
@@ -24,22 +25,31 @@ expressWs(app, server);
  *****************/
 app.use(timeout(1500));
 app.use(express.json());
+// compress all requests
+app.use(compression());
 app.use(express.static(__dirname + '/src/static'));
 /// middleware for all api routes
-app.all('/api/*', (request, response, next) => {
-    console.log('All routes ...');
-    /// set
-    next();
+app.all('/api/*', async (request, response, next) => {
+    console.log('All API routes ...');
+    const bearerHeader = request.headers.authorization;
+    if (!bearerHeader) {
+        return response.sendStatus(401);
+    }
+    else {
+        const bearerToken = bearerHeader.split(' ')[1];
+        console.log({ bearerToken });
+        if (bearerToken !== 'THE_ONE')
+            response.sendStatus(401);
+        next();
+    }
 });
 /// admin routes
 app.all('/secret/*', (request, response, next) => {
-    console.log('All routes ...');
+    console.log('All Admin routes ...');
     /// set
     next();
 });
 // auth middleware => https://www.linode.com/docs/guides/authenticating-over-websockets-with-jwt/
-// more https://github.dev/glynnbird/simple-autocomplete-service/blob/a922a4b773706192c996ba8486727572236ffa3e/app.js#L10
-// app.use();
 // go to docs
 app.get('/', (req, res) => {
     res.redirect('/docs/get-started');
@@ -53,7 +63,7 @@ app.get('/secret/boot', redisController_1.RedisController.createAnIndex);
 // Get the route /
 app.get('/secret/feed-data/:category', redisController_1.RedisController.feedData);
 // http search
-app.get('api/v1/search/autocomplete/:key', redisController_1.RedisController.getAll);
+app.get('/api/v1/search/autocomplete/:key', redisController_1.RedisController.getAll);
 /// websocket search
 app.ws('/', (ws) => {
     ws.on('message', (msg) => {

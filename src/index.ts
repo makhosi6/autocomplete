@@ -2,11 +2,12 @@ import {Request, Response} from 'express';
 import {WebSocket} from 'ws';
 import {RedisController} from './core/controllers/redisController';
 import {client} from './core/db/client';
+import {ADMIN_KEY} from './core/utils/app.config';
 const express = require('express');
 const expressWs = require('express-ws');
 const http = require('http'); // change to https
 const timeout = require('connect-timeout');
-
+const compression = require('compression');
 // Our port
 const port = 3001;
 
@@ -30,25 +31,44 @@ expressWs(app, server);
  *****************/
 app.use(timeout(1500));
 app.use(express.json());
+// compress all requests
+app.use(compression());
 app.use(express.static(__dirname + '/src/static'));
 
 /// middleware for all api routes
-app.all('/api/*', (request: Response, response: Response, next: any) => {
-  console.log('All routes ...');
-  /// set
-  next();
-});
+app.all(
+  '/api/*',
+  async (request: Request, response: Response, next: any): Promise<any> => {
+    console.log('All API routes ...');
+    const bearerHeader = request.headers.authorization;
+    if (!bearerHeader) {
+      return response.sendStatus(401);
+    } else {
+      const bearerToken = bearerHeader.split(' ')[1];
+      console.log({bearerToken});
+      if (bearerToken !== 'THE_ONE') response.sendStatus(401);
+
+      next();
+    }
+  }
+);
 
 /// admin routes
-app.all('/secret/*', (request: Response, response: Response, next: any) => {
-  console.log('All routes ...');
-  /// set
-  next();
+app.all('/secret/*', (request: Request, response: Response, next: any) => {
+  console.log('All Admin routes ...');
+  const bearerHeader = request.headers.authorization;
+  if (!bearerHeader) {
+    return response.sendStatus(403);
+  } else {
+    const bearerToken = bearerHeader.split(' ')[1];
+    console.log({bearerToken});
+    if (bearerToken !== ADMIN_KEY) response.sendStatus(403);
+
+    next();
+  }
 });
 
 // auth middleware => https://www.linode.com/docs/guides/authenticating-over-websockets-with-jwt/
-// more https://github.dev/glynnbird/simple-autocomplete-service/blob/a922a4b773706192c996ba8486727572236ffa3e/app.js#L10
-// app.use();
 
 // go to docs
 app.get('/', (req: Request, res: Response) => {
@@ -64,7 +84,7 @@ app.get('/secret/boot', RedisController.createAnIndex);
 // Get the route /
 app.get('/secret/feed-data/:category', RedisController.feedData);
 // http search
-app.get('api/v1/search/autocomplete/:key', RedisController.getAll);
+app.get('/api/v1/search/autocomplete/:key', RedisController.getAll);
 /// websocket search
 app.ws('/', (ws: WebSocket) => {
   ws.on('message', (msg: string) => {
@@ -72,11 +92,6 @@ app.ws('/', (ws: WebSocket) => {
     ws.send(msg);
   });
 });
-
-/// bad request
-// app.get('*', (req: Request, res: Response) => {
-//   res.status(400);
-// });
 
 /// If and when the app dies
 process.once('exit', async () => {

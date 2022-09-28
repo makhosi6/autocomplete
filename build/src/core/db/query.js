@@ -14,6 +14,9 @@ async function search(query, limit = 5) {
             size: limit,
         },
     });
+    console.log({
+        one: results.documents[0],
+    });
     ///
     return {
         total: results.documents.length,

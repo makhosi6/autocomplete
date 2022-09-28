@@ -70,7 +70,7 @@ export async function feedValues(category: string) {
       await client.json.set(`noderedis:words:${word}`, '$', {
         word,
         key: word.toLowerCase(),
-        id: uniqueId(word),
+        uid: uniqueId(word),
       });
     });
   } catch (error) {

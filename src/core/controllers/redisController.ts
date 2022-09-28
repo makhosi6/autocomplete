@@ -27,9 +27,12 @@ export class RedisController {
        * - minimum is 1
        */
       const limit = request.query.limit
-        ? /// if greater than 10 default to 5
-          Number(request.query.limit) > 10
+        ? Number(request.query.limit) === 0
           ? 5
+          : /// if greater than 10 default to 10
+
+          Number(request.query.limit) > 10
+          ? 10
           : Number(request.query.limit)
         : undefined;
 

@@ -12,6 +12,11 @@ export async function search(query: string, limit = 5) {
       size: limit,
     },
   });
+
+  console.log({
+    one: results.documents[0],
+  });
+
   ///
   return {
     total: results.documents.length,
