@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.search = void 0;
-async function search(client, query) {
+async function search(query) {
+    ///set DB client
+    const client = global.client;
     /**
      *
      */

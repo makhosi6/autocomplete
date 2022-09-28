@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uniqueId = void 0;
-const https = require('https'), fs = require('fs'), events = require('events');
-const { v4: uuidv4 } = require('uuid');
-// let err = [https, fs, events, uuidv4];
 function uniqueId(key) {
     //reverse the key
     const salt = [...key].reverse().join('');

@@ -4,9 +4,11 @@ exports.feedValues = exports.preBoot = void 0;
 /* eslint-disable node/no-extraneous-import */
 const commands_1 = require("@redis/search/dist/commands");
 const utils_1 = require("../utils");
-async function preBoot(client) {
+async function preBoot() {
     try {
         console.log('CREATE...');
+        ///set DB client
+        const client = global.client;
         // Documentation: https://redis.io/commands/ft.create/
         await client.ft.create('idx:words', {
             '$.word': {
@@ -33,8 +35,10 @@ async function preBoot(client) {
     }
 }
 exports.preBoot = preBoot;
-async function feedValues(client) {
+async function feedValues(category) {
     try {
+        ///set DB client
+        const client = global.client;
         console.log('Feed VALUES..');
         ///
         let num = 10000;
@@ -48,18 +52,6 @@ async function feedValues(client) {
         /**
          * feed data into redis
          */
-        await Promise.all([
-            client.json.set('noderedis:words:2012', '$', {
-                word: 'name',
-                key: 'name',
-                id: 'Z25peWZpcHB1eXl1cHBpZnlpbmc',
-            }),
-            client.json.set('noderedis:words:2011', '$', {
-                word: 'game',
-                key: 'game',
-                id: 'Z25peWZpceqeqcq',
-            }),
-        ]);
         records.map(async (word) => {
             if (word === '')
                 return;
@@ -67,7 +59,7 @@ async function feedValues(client) {
             console.log({
                 num,
                 word,
-                key: word,
+                key: word.toLowerCase(),
                 id: (0, utils_1.uniqueId)(word),
             });
             await client.json.set(`noderedis:words:${num}`, '$', {

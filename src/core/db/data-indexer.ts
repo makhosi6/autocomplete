@@ -2,9 +2,12 @@
 import {SchemaFieldTypes} from '@redis/search/dist/commands';
 import {uniqueId} from '../utils';
 
-export async function preBoot(client: any) {
+export async function preBoot() {
   try {
     console.log('CREATE...');
+
+    ///set DB client
+    const client = (global as any).client;
 
     // Documentation: https://redis.io/commands/ft.create/
     await client.ft.create(
@@ -35,8 +38,11 @@ export async function preBoot(client: any) {
   }
 }
 
-export async function feedValues(client: any) {
+export async function feedValues(category: string) {
   try {
+    ///set DB client
+    const client = (global as any).client;
+
     console.log('Feed VALUES..');
 
     ///
@@ -57,18 +63,6 @@ export async function feedValues(client: any) {
     /**
      * feed data into redis
      */
-    await Promise.all([
-      client.json.set('noderedis:words:2012', '$', {
-        word: 'name',
-        key: 'name',
-        id: 'Z25peWZpcHB1eXl1cHBpZnlpbmc',
-      }),
-      client.json.set('noderedis:words:2011', '$', {
-        word: 'game',
-        key: 'game',
-        id: 'Z25peWZpceqeqcq',
-      }),
-    ]);
 
     records.map(async (word: string) => {
       if (word === '') return;
@@ -76,7 +70,7 @@ export async function feedValues(client: any) {
       console.log({
         num,
         word,
-        key: word,
+        key: word.toLowerCase(),
         id: uniqueId(word),
       });
 

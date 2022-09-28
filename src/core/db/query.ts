@@ -1,7 +1,10 @@
-export async function search(client: any, query: string) {
+export async function search(query: string) {
+  ///set DB client
+  const client = (global as any).client;
   /**
    *
    */
+
   const results = await client.ft.search('idx:words', `@key:{${query}*}`);
   ///
   return {
