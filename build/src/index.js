@@ -25,8 +25,14 @@ expressWs(app, server);
 app.use(timeout(1500));
 app.use(express.json());
 app.use(express.static(__dirname + '/src/static'));
-///
-app.all('*', (request, response, next) => {
+/// middleware for all api routes
+app.all('/api/*', (request, response, next) => {
+    console.log('All routes ...');
+    /// set
+    next();
+});
+/// admin routes
+app.all('/secret/*', (request, response, next) => {
     console.log('All routes ...');
     /// set
     next();
@@ -43,11 +49,11 @@ app.get('/home', (req, res) => {
     res.redirect('/docs/get-started');
 });
 // boot/create a Redis index
-app.get('/boot', redisController_1.RedisController.createAnIndex);
+app.get('/secret/boot', redisController_1.RedisController.createAnIndex);
 // Get the route /
-app.get('/feed-data/:category', redisController_1.RedisController.feedData);
+app.get('/secret/feed-data/:category', redisController_1.RedisController.feedData);
 // http search
-app.get('/search/autocomplete/:key', redisController_1.RedisController.getAll);
+app.get('api/v1/search/autocomplete/:key', redisController_1.RedisController.getAll);
 /// websocket search
 app.ws('/', (ws) => {
     ws.on('message', (msg) => {

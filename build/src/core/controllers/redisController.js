@@ -26,7 +26,10 @@ class RedisController {
              * - minimum is 1
              */
             const limit = request.query.limit
-                ? Number(request.query.limit)
+                ? /// if greater than 10 default to 5
+                    Number(request.query.limit) > 10
+                        ? 5
+                        : Number(request.query.limit)
                 : undefined;
             /**
              * decode url and use it to query DB
