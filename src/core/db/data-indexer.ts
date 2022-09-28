@@ -46,10 +46,10 @@ export async function feedValues(category: string) {
     console.log('Feed VALUES..');
 
     ///
-    let num = 10000;
+    // let num = start || Math.floor(Math.random() * 1203333);
 
     const allFileContents = require('fs').readFileSync(
-      `${__dirname}/data/${'y'}.txt`,
+      `${__dirname}/data/${category}.txt`,
       'utf-8'
     );
 
@@ -66,17 +66,10 @@ export async function feedValues(category: string) {
 
     records.map(async (word: string) => {
       if (word === '') return;
-      num++;
-      console.log({
-        num,
+
+      await client.json.set(`noderedis:words:${word}`, '$', {
         word,
         key: word.toLowerCase(),
-        id: uniqueId(word),
-      });
-
-      await client.json.set(`noderedis:words:${num}`, '$', {
-        word,
-        key: word,
         id: uniqueId(word),
       });
     });

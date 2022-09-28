@@ -41,8 +41,8 @@ async function feedValues(category) {
         const client = global.client;
         console.log('Feed VALUES..');
         ///
-        let num = 10000;
-        const allFileContents = require('fs').readFileSync(`${__dirname}/data/${'y'}.txt`, 'utf-8');
+        // let num = start || Math.floor(Math.random() * 1203333);
+        const allFileContents = require('fs').readFileSync(`${__dirname}/data/${category}.txt`, 'utf-8');
         /**
          * get all records
          */
@@ -55,16 +55,9 @@ async function feedValues(category) {
         records.map(async (word) => {
             if (word === '')
                 return;
-            num++;
-            console.log({
-                num,
+            await client.json.set(`noderedis:words:${word}`, '$', {
                 word,
                 key: word.toLowerCase(),
-                id: (0, utils_1.uniqueId)(word),
-            });
-            await client.json.set(`noderedis:words:${num}`, '$', {
-                word,
-                key: word,
                 id: (0, utils_1.uniqueId)(word),
             });
         });

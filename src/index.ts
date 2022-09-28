@@ -1,11 +1,12 @@
 import {Request, Response} from 'express';
+import {Application} from 'express-ws';
 import {WebSocket} from 'ws';
+import {RedisController} from './core/controllers/redisController';
 import {client} from './core/db/client';
-import {feedValues, preBoot} from './core/db/data-indexer';
-import {search} from './core/db/query';
 const express = require('express');
 const expressWss = require('express-ws');
 const http = require('http'); // change to https
+const timeout = require('connect-timeout');
 
 // Our port
 const port = 3001;
@@ -14,60 +15,39 @@ const port = 3001;
 client().then(c => ((global as any).client = c));
 
 // App and server
-const app = express();
+const app: Application = express();
+
+///
 const server = http
   .createServer(app)
   .listen(port, () => console.log('Running on port 3001'));
 
-// Apply expressWs
+// Apply expressWss
 expressWss(app, server);
 
-// app.use(express.static(__dirname + '/static'));
+/*******************
+ *  MIDDLEWARES
+ *
+ *****************/
+// app.use(timeout(1000));
+
+app.use(express.static(__dirname + '/static'));
 
 // auth middleware => https://www.linode.com/docs/guides/authenticating-over-websockets-with-jwt/
 // more https://github.dev/glynnbird/simple-autocomplete-service/blob/a922a4b773706192c996ba8486727572236ffa3e/app.js#L10
 // app.use();
 
-// Get the route /
+// go to docs
 app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to our app');
+  res.redirect('/docs/get-started');
 });
-// Get the route /
-app.get('/boot', async (req: Request, res: Response) => {
-  /// boot the application
-  await preBoot();
-  // response
-  res.status(200).send('Done');
-});
+// boot/create a Redis index
+app.get('/boot', RedisController.createAnIndex);
 
 // Get the route /
-app.get('/feed-data/:category', async (req: Request, res: Response) => {
-  ///categoty
-  const category: string = req.params.category;
-
-  await feedValues(decodeURIComponent(category));
-
-  res.status(200).send('Done');
-});
+app.get('/feed-data/:category', RedisController.feedData);
 // http search
-app.get(
-  '/search/autocomplete/:key',
-  async (req: Request, res: Response): Promise<any> => {
-    try {
-      //query value
-      const query: string = req.params.key;
-      console.log({query});
-      //decode url and use iit to query DB
-      const data = await search(decodeURIComponent(query));
-
-      res.send(data);
-    } catch (error) {
-      console.log(error);
-
-      res.sendStatus(500);
-    }
-  }
-);
+app.get('/search/autocomplete/:key', RedisController.getAll);
 /// websocket search
 app.ws('/', (ws: WebSocket) => {
   ws.on('message', (msg: string) => {
@@ -79,6 +59,14 @@ app.ws('/', (ws: WebSocket) => {
 /// bad request
 app.get('*', (req: Request, res: Response) => {
   res.status(400);
+});
+
+/// If and when the app dies
+process.once('exit', async () => {
+  console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
+
+  /// the server and the client  close the connection
+  (global as any).client.quit();
 });
 
 // TO_DO
