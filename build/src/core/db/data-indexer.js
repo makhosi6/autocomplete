@@ -57,8 +57,8 @@ async function feedValues(category) {
                 return;
             await client.json.set(`noderedis:words:${word}`, '$', {
                 word,
-                key: word.toLowerCase(),
-                id: (0, utils_1.uniqueId)(word),
+                key: word,
+                uid: (0, utils_1.uniqueId)(word),
             });
         });
     }

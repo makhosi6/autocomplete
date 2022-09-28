@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const redisController_1 = require("./core/controllers/redisController");
 const client_1 = require("./core/db/client");
+const app_config_1 = require("./core/utils/app.config");
 const express = require('express');
 const expressWs = require('express-ws');
 const http = require('http'); // change to https
@@ -46,8 +47,17 @@ app.all('/api/*', async (request, response, next) => {
 /// admin routes
 app.all('/secret/*', (request, response, next) => {
     console.log('All Admin routes ...');
-    /// set
-    next();
+    const bearerHeader = request.headers.authorization;
+    if (!bearerHeader) {
+        response.sendStatus(403);
+    }
+    else {
+        const bearerToken = bearerHeader.split(' ')[1];
+        console.log({ bearerToken });
+        if (bearerToken !== app_config_1.ADMIN_KEY)
+            response.sendStatus(403);
+        next();
+    }
 });
 // auth middleware => https://www.linode.com/docs/guides/authenticating-over-websockets-with-jwt/
 // go to docs
@@ -65,19 +75,40 @@ app.get('/secret/feed-data/:category', redisController_1.RedisController.feedDat
 // http search
 app.get('/api/v1/search/autocomplete/:key', redisController_1.RedisController.getAll);
 /// websocket search
-app.ws('/', (ws) => {
+app.ws('/ws', (ws) => {
+    /// "ws://localhost:3000/ws?token="0909"
+    ws.on('connection', (ws, request) => {
+        /// token
+        const token = request.query.token;
+        console.log('Connection');
+        console.log({ token });
+    });
+    /// "ws://localhost:3000/ws?token="0909"
+    ws.on('open', (ws, request) => {
+        /// token
+        const token = request.query.token;
+        console.log('Open');
+        console.log({ token });
+    });
     ws.on('message', (msg) => {
+        console.log({ msg });
+        ws.send(msg);
+        throw 'WS ERR';
+    });
+    ws.on('error', (msg) => {
         console.log({ msg });
         ws.send(msg);
     });
 });
-/// bad request
-// app.get('*', (req: Request, res: Response) => {
-//   res.status(400);
-// });
 /// If and when the app dies
 process.once('exit', async () => {
     console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
+    /// the server and the client  close the connection
+    global.client.quit();
+});
+/// If and when the app dies
+process.once('disconnect', async () => {
+    console.log('\x1b[31m%s\x1b[0m', 'PROCESS DISCONNECTED...');
     /// the server and the client  close the connection
     global.client.quit();
 });

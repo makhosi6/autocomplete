@@ -2,10 +2,14 @@ export async function search(query: string, limit = 5) {
   ///set DB client
   const client = (global as any).client;
   /**
+   * if it a ONE letter query
+   */
+  const command = query.length < 2 ? `@key:{${query}}` : `@key:{${query}*}`;
+
+  /**
    *
    */
-
-  const results = await client.ft.search('idx:words', `@key:{${query}*}`, {
+  const results = await client.ft.search('idx:words', command, {
     // limit
     LIMIT: {
       from: 0,

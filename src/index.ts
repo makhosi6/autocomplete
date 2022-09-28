@@ -58,7 +58,7 @@ app.all('/secret/*', (request: Request, response: Response, next: any) => {
   console.log('All Admin routes ...');
   const bearerHeader = request.headers.authorization;
   if (!bearerHeader) {
-    return response.sendStatus(403);
+    response.sendStatus(403);
   } else {
     const bearerToken = bearerHeader.split(' ')[1];
     console.log({bearerToken});
@@ -86,8 +86,30 @@ app.get('/secret/feed-data/:category', RedisController.feedData);
 // http search
 app.get('/api/v1/search/autocomplete/:key', RedisController.getAll);
 /// websocket search
-app.ws('/', (ws: WebSocket) => {
+app.ws('/ws', (ws: WebSocket) => {
+  /// "ws://localhost:3000/ws?token="0909"
+  ws.on('connection', (ws: WebSocket, request: Request) => {
+    /// token
+    const token = request.query.token;
+    console.log('Connection');
+
+    console.log({token});
+  });
+  /// "ws://localhost:3000/ws?token="0909"
+  ws.on('open', (ws: WebSocket, request: Request) => {
+    /// token
+    const token = request.query.token;
+    console.log('Open');
+
+    console.log({token});
+  });
+
   ws.on('message', (msg: string) => {
+    console.log({msg});
+    ws.send(msg);
+    throw 'WS ERR';
+  });
+  ws.on('error', (msg: any) => {
     console.log({msg});
     ws.send(msg);
   });
@@ -96,6 +118,13 @@ app.ws('/', (ws: WebSocket) => {
 /// If and when the app dies
 process.once('exit', async () => {
   console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
+
+  /// the server and the client  close the connection
+  (global as any).client.quit();
+});
+/// If and when the app dies
+process.once('disconnect', async () => {
+  console.log('\x1b[31m%s\x1b[0m', 'PROCESS DISCONNECTED...');
 
   /// the server and the client  close the connection
   (global as any).client.quit();
