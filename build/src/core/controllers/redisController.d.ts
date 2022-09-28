@@ -19,5 +19,5 @@ export declare class RedisController {
     /**
      * create a Redis data index
      */
-    static createAnIndex(): Promise<void>;
+    static createAnIndex(_: any, response: Response): Promise<any>;
 }

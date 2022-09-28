@@ -1,10 +1,9 @@
 import {Request, Response} from 'express';
-import {Application} from 'express-ws';
 import {WebSocket} from 'ws';
 import {RedisController} from './core/controllers/redisController';
 import {client} from './core/db/client';
 const express = require('express');
-const expressWss = require('express-ws');
+const expressWs = require('express-ws');
 const http = require('http'); // change to https
 const timeout = require('connect-timeout');
 
@@ -15,7 +14,7 @@ const port = 3001;
 client().then(c => ((global as any).client = c));
 
 // App and server
-const app: Application = express();
+const app = express();
 
 ///
 const server = http
@@ -23,15 +22,22 @@ const server = http
   .listen(port, () => console.log('Running on port 3001'));
 
 // Apply expressWss
-expressWss(app, server);
+expressWs(app, server);
 
 /*******************
  *  MIDDLEWARES
  *
  *****************/
-// app.use(timeout(1000));
+app.use(timeout(1500));
+app.use(express.json());
+app.use(express.static(__dirname + '/src/static'));
 
-app.use(express.static(__dirname + '/static'));
+///
+app.all('*', (request: Response, response: Response, next: any) => {
+  console.log('All routes ...');
+  /// set
+  next();
+});
 
 // auth middleware => https://www.linode.com/docs/guides/authenticating-over-websockets-with-jwt/
 // more https://github.dev/glynnbird/simple-autocomplete-service/blob/a922a4b773706192c996ba8486727572236ffa3e/app.js#L10
@@ -39,6 +45,10 @@ app.use(express.static(__dirname + '/static'));
 
 // go to docs
 app.get('/', (req: Request, res: Response) => {
+  res.redirect('/docs/get-started');
+});
+///
+app.get('/home', (req: Request, res: Response) => {
   res.redirect('/docs/get-started');
 });
 // boot/create a Redis index
@@ -57,9 +67,9 @@ app.ws('/', (ws: WebSocket) => {
 });
 
 /// bad request
-app.get('*', (req: Request, res: Response) => {
-  res.status(400);
-});
+// app.get('*', (req: Request, res: Response) => {
+//   res.status(400);
+// });
 
 /// If and when the app dies
 process.once('exit', async () => {

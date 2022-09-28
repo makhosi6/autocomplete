@@ -32,7 +32,7 @@ class RedisController {
              * decode url and use it to query DB
              */
             const data = await (0, query_1.search)(decodeURIComponent(query), limit);
-            /// return data
+            ///
             response.send(data);
         }
         catch (error) {
@@ -62,8 +62,14 @@ class RedisController {
     /**
      * create a Redis data index
      */
-    static async createAnIndex() {
-        await (0, data_indexer_1.preBoot)();
+    static async createAnIndex(_, response) {
+        try {
+            await (0, data_indexer_1.preBoot)();
+            response.status(200).send('Done');
+        }
+        catch (error) {
+            response.sendStatus(500);
+        }
     }
 }
 exports.RedisController = RedisController;
