@@ -28,3 +28,12 @@ export function escapeSymbol(value: string) {
   value = value.replace('@', '\\@');
   return value;
 }
+
+/**
+ * @description program will sleep for x milliseconds
+ * @param {number} ms
+ * @returns Promise<void>
+ */
+function waitFor(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

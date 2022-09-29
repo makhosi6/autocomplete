@@ -1,31 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const redisController_1 = require("./core/controllers/redisController");
+const http_1 = require("./core/controllers/http");
 const client_1 = require("./core/db/client");
 const app_config_1 = require("./core/utils/app.config");
+const rate_limiting_config_1 = require("./core/utils/rate-limiting.config");
+const rr = require('@jwerre/rate-limit-redis');
 const express = require('express');
-const expressWs = require('express-ws');
-const http = require('http'); // change to https
-const timeout = require('connect-timeout');
+const cors = require('cors');
 const compression = require('compression');
 // Our port
 const port = 3001;
 /// set DB client
 (0, client_1.client)().then(c => (global.client = c));
+console.log({
+    rr,
+});
 // App and server
 const app = express();
-///
-const server = http
-    .createServer(app)
-    .listen(port, () => console.log('Running on port 3001'));
-// Apply expressWss
-expressWs(app, server);
 /*******************
  *  MIDDLEWARES
  *
  *****************/
-app.use(timeout(1500));
+app.use(cors());
 app.use(express.json());
+// use trust proxy if behind load balancer
+app.enable('trust proxy');
+app.use((request, response, next) => rr.rateLimitRedis(rate_limiting_config_1.rateLimitArgs)(request, response, next));
 // compress all requests
 app.use(compression());
 // app.use(express.static(__dirname + '/src/static'));
@@ -69,37 +69,11 @@ app.get('/home', (req, res) => {
     res.redirect('/docs/get-started');
 });
 // boot/create a Redis index
-app.get('/secret/boot', redisController_1.RedisController.createAnIndex);
+app.get('/secret/boot', http_1.RedisHttpController.createAnIndex);
 // Get the route /
-app.get('/secret/feed-data/:category', redisController_1.RedisController.feedData);
+app.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
 // http search
-app.get('/api/v1/search/autocomplete/:key', redisController_1.RedisController.getAll);
-/// websocket search
-app.ws('/ws', (ws) => {
-    /// "ws://localhost:3000/ws?token="0909"
-    ws.on('connection', (ws, request) => {
-        /// token
-        const token = request.query.token;
-        console.log('Connection');
-        console.log({ token });
-    });
-    /// "ws://localhost:3000/ws?token="0909"
-    ws.on('open', (ws, request) => {
-        /// token
-        const token = request.query.token;
-        console.log('Open');
-        console.log({ token });
-    });
-    ws.on('message', (msg) => {
-        console.log({ msg });
-        ws.send(msg);
-        throw 'WS ERR';
-    });
-    ws.on('error', (msg) => {
-        console.log({ msg });
-        ws.send(msg);
-    });
-});
+app.get('/api/v1/autocomplete/:key', http_1.RedisHttpController.getAll);
 /// If and when the app dies
 process.once('exit', async () => {
     console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
@@ -111,5 +85,10 @@ process.once('disconnect', async () => {
     console.log('\x1b[31m%s\x1b[0m', 'PROCESS DISCONNECTED...');
     /// the server and the client close the connection
     global.client.quit();
+});
+// app.listen(port, () => console.log('Running on port 3001'));
+const server = app.listen(port);
+server.on('error', () => {
+    global.rateLimitRedis.disconnect();
 });
 //# sourceMappingURL=index.js.map

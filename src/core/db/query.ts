@@ -1,4 +1,4 @@
-import {hasSymbol, uniqueId} from '../utils';
+import {hasSymbol, uniqueId} from '../utils/helpers';
 
 export async function search(query: string, limit = 5, sort: any) {
   ///set DB client

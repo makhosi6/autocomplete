@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RedisController = void 0;
+exports.RedisHttpController = void 0;
 const data_indexer_1 = require("../db/data-indexer");
 const query_1 = require("../db/query");
-class RedisController {
+class RedisHttpController {
     constructor() { }
     /**
      * index - get one
@@ -86,5 +86,5 @@ class RedisController {
         }
     }
 }
-exports.RedisController = RedisController;
-//# sourceMappingURL=redisController.js.map
+exports.RedisHttpController = RedisHttpController;
+//# sourceMappingURL=http.js.map

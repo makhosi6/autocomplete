@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import {feedValues, preBoot} from '../db/data-indexer';
 import {search} from '../db/query';
 
-export class RedisController {
+export class RedisHttpController {
   constructor() {}
 
   /**
@@ -24,6 +24,10 @@ export class RedisController {
        *
        */
       const sort = request.query.sort ? request.query.sort : 'ASC';
+      /**
+       * verbose
+       */
+      const isVerbose = Boolean(request.query.verbose);
       /**
        * optional limit
        * - defualt is 5

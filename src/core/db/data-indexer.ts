@@ -1,6 +1,6 @@
 /* eslint-disable node/no-extraneous-import */
 import {SchemaFieldTypes} from '@redis/search/dist/commands';
-import {uniqueId} from '../utils';
+import {uniqueId} from '../utils/helpers';
 
 export async function preBoot() {
   try {

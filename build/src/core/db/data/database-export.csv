@@ -1,0 +1,2 @@
+﻿"Status","Database ID","Database name","Subscription ID","Subscription name","Public endpoint","Private endpoint","Memory limit (MB)","Memory used (MB)","Throughput (Ops/sec)","Modules","Options","Shard type","Shard count","Shard price ($/hr)","Database price ($/hr)"
+"Active","11243387","reddy-r43233-322","1857676","free-tier","redis-12527.c83.us-east-1-2.ec2.cloud.redislabs.com:12527","N/A","30","30","N/A","RedisJSON; RediSearch Light 2","N/A","N/A","N/A","N/A","Fixed price"
