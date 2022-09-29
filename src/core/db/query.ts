@@ -1,6 +1,6 @@
-import {hasSymbol} from '../utils';
+import {hasSymbol, uniqueId} from '../utils';
 
-export async function search(query: string, limit = 5) {
+export async function search(query: string, limit = 5, sort: any) {
   ///set DB client
   const client = (global as any).client;
 
@@ -19,12 +19,12 @@ export async function search(query: string, limit = 5) {
    */
 
   const command = isTwoLetterWord
-    ? asArr.join(' ')
-    : hasSymbol(query)
+    ? asArr.join(' ') // if its a phrase(two words or more)
+    : hasSymbol(query) // if has special characters
     ? `${query}*`
     : query.length < 2
-    ? `${query}|~${query}`
-    : `${query}|${query}*`;
+    ? `${query}|~${query}|${query}*` // if has one letter
+    : `${query}|${query}*`; // else
 
   console.log({command});
 
@@ -32,6 +32,10 @@ export async function search(query: string, limit = 5) {
    *
    */
   const results = await client.ft.search('idx:words', command, {
+    SORTBY: {
+      BY: 'word',
+      DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
+    },
     // limit
     LIMIT: {
       from: 0,
@@ -39,13 +43,18 @@ export async function search(query: string, limit = 5) {
     },
   });
 
-  console.log({
-    one: results.documents[0],
-  });
+  console.log(
+    {
+      results: results.documents[0],
+    },
+    !results.documents[0] ? '🌈🌈🌈🔥🔥🔥' : '🟩❎'
+  );
 
   ///
   return {
     total: results.documents.length,
-    data: results.documents.map((item: any) => item.value),
+    data: results.documents.map((item: any) => {
+      return {...JSON.parse(item.value.$), ...{uid: uniqueId(item.value.word)}};
+    }),
   };
 }

@@ -13,7 +13,8 @@
     "prepare": "npm.cmd run compile",
     "pretest": "npm.cmd run compile",
     "posttest": "npm.cmd run lint",
-    "dev": "node build/src/index.js"
+    "http": "node build/src/index.js",
+    "ws": "node build/src/ws.js"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +24,9 @@
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",
     "express": "^4.17.2",
+    "express-pino-logger": "^7.0.0",
     "express-ws": "^5.0.2",
+    "pino": "^8.6.1",
     "redis": "^4.3.1",
     "uuid": "^8.3.2",
     "ws": "^8.5.0"

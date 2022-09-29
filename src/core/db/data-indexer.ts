@@ -18,12 +18,12 @@ export async function preBoot() {
           SORTABLE: 'UNF',
           AS: 'word',
         },
-        '$.key': {type: SchemaFieldTypes.TAG, AS: 'key'},
-        '$.uid': {type: SchemaFieldTypes.TEXT, AS: 'uid'},
+        // '$.key': {type: SchemaFieldTypes.TAG, AS: 'key'},
+        // '$.uid': {type: SchemaFieldTypes.TEXT, AS: 'uid'},
       },
       {
         ON: 'JSON',
-        PREFIX: 'noderedis:words',
+        PREFIX: 'redis:words',
       }
     );
   } catch (e: any) {
@@ -67,10 +67,10 @@ export async function feedValues(category: string) {
     records.map(async (word: string) => {
       if (word === '') return;
 
-      await client.json.set(`noderedis:words:${word}`, '$', {
+      await client.json.set(`redis:words:${word}`, '$', {
         word,
-        key: word,
-        uid: uniqueId(word),
+        // key: word,
+        // uid: uniqueId(word),
       });
     });
   } catch (error) {

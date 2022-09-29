@@ -20,6 +20,11 @@ class RedisController {
             //query value
             const query = request.params.key;
             /**
+             * optional sort ['DESC' | 'ASC' ]
+             *
+             */
+            const sort = request.query.sort ? request.query.sort : 'ASC';
+            /**
              * optional limit
              * - defualt is 5
              * - maximum is 10
@@ -36,7 +41,7 @@ class RedisController {
             /**
              * decode url and use it to query DB
              */
-            const data = await (0, query_1.search)(decodeURIComponent(query), limit);
+            const data = await (0, query_1.search)(decodeURIComponent(query), limit, sort);
             ///
             response.send(data);
         }

@@ -119,18 +119,13 @@ app.ws('/ws', (ws: WebSocket) => {
 process.once('exit', async () => {
   console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
 
-  /// the server and the client  close the connection
+  /// the server and the client close the connection
   (global as any).client.quit();
 });
 /// If and when the app dies
 process.once('disconnect', async () => {
   console.log('\x1b[31m%s\x1b[0m', 'PROCESS DISCONNECTED...');
 
-  /// the server and the client  close the connection
+  /// the server and the client close the connection
   (global as any).client.quit();
 });
-
-// TO_DO
-// fix structure
-// env
-// search , sort and filter

@@ -1,0 +1,2 @@
+// logging
+// store faulty queries

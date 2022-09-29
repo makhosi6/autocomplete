@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.feedValues = exports.preBoot = void 0;
 /* eslint-disable node/no-extraneous-import */
 const commands_1 = require("@redis/search/dist/commands");
-const utils_1 = require("../utils");
 async function preBoot() {
     try {
         console.log('CREATE...');
@@ -16,11 +15,11 @@ async function preBoot() {
                 SORTABLE: 'UNF',
                 AS: 'word',
             },
-            '$.key': { type: commands_1.SchemaFieldTypes.TAG, AS: 'key' },
-            '$.uid': { type: commands_1.SchemaFieldTypes.TEXT, AS: 'uid' },
+            // '$.key': {type: SchemaFieldTypes.TAG, AS: 'key'},
+            // '$.uid': {type: SchemaFieldTypes.TEXT, AS: 'uid'},
         }, {
             ON: 'JSON',
-            PREFIX: 'noderedis:words',
+            PREFIX: 'redis:words',
         });
     }
     catch (e) {
@@ -55,10 +54,10 @@ async function feedValues(category) {
         records.map(async (word) => {
             if (word === '')
                 return;
-            await client.json.set(`noderedis:words:${word}`, '$', {
+            await client.json.set(`redis:words:${word}`, '$', {
                 word,
-                key: word,
-                uid: (0, utils_1.uniqueId)(word),
+                // key: word,
+                // uid: uniqueId(word),
             });
         });
     }

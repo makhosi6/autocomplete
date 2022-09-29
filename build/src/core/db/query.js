@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.search = void 0;
 const utils_1 = require("../utils");
-async function search(query, limit = 5) {
+async function search(query, limit = 5, sort) {
     ///set DB client
     const client = global.client;
     const asArr = query.split(' ');
@@ -17,17 +17,21 @@ async function search(query, limit = 5) {
      * if it a ONE letter query
      */
     const command = isTwoLetterWord
-        ? asArr.join(' ')
-        : (0, utils_1.hasSymbol)(query)
+        ? asArr.join(' ') // if its a phrase(two words or more)
+        : (0, utils_1.hasSymbol)(query) // if has special characters
             ? `${query}*`
             : query.length < 2
-                ? `${query}|~${query}`
-                : `${query}|${query}*`;
+                ? `${query}|~${query}|${query}*` // if has one letter
+                : `${query}|${query}*`; // else
     console.log({ command });
     /**
      *
      */
     const results = await client.ft.search('idx:words', command, {
+        SORTBY: {
+            BY: 'word',
+            DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
+        },
         // limit
         LIMIT: {
             from: 0,
@@ -35,12 +39,14 @@ async function search(query, limit = 5) {
         },
     });
     console.log({
-        one: results.documents[0],
-    });
+        results: results.documents[0],
+    }, !results.documents[0] ? '🌈🌈🌈🔥🔥🔥' : '🟩❎');
     ///
     return {
         total: results.documents.length,
-        data: results.documents.map((item) => item.value),
+        data: results.documents.map((item) => {
+            return { ...JSON.parse(item.value.$), ...{ uid: (0, utils_1.uniqueId)(item.value.word) } };
+        }),
     };
 }
 exports.search = search;
