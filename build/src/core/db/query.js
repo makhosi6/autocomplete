@@ -1,13 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.search = void 0;
+const utils_1 = require("../utils");
 async function search(query, limit = 5) {
     ///set DB client
     const client = global.client;
+    const asArr = query.split(' ');
+    ///
+    const isTwoLetterWord = asArr.length > 1;
+    //
+    if (isTwoLetterWord) {
+        asArr[asArr.length - 1] = '~' + asArr[asArr.length - 1];
+        console.log({ asArr });
+    }
     /**
      * if it a ONE letter query
      */
-    const command = query.length < 2 ? `@key:{${query}}` : `@key:{${query}*}`;
+    const command = isTwoLetterWord
+        ? asArr.join(' ')
+        : (0, utils_1.hasSymbol)(query)
+            ? `${query}*`
+            : query.length < 2
+                ? `${query}|~${query}`
+                : `${query}|${query}*`;
+    console.log({ command });
     /**
      *
      */

@@ -28,7 +28,7 @@ app.use(timeout(1500));
 app.use(express.json());
 // compress all requests
 app.use(compression());
-app.use(express.static(__dirname + '/src/static'));
+// app.use(express.static(__dirname + '/src/static'));
 /// middleware for all api routes
 app.all('/api/*', async (request, response, next) => {
     console.log('All API routes ...');

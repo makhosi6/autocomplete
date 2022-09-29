@@ -1,10 +1,32 @@
+import {hasSymbol} from '../utils';
+
 export async function search(query: string, limit = 5) {
   ///set DB client
   const client = (global as any).client;
+
+  const asArr = query.split(' ');
+  ///
+  const isTwoLetterWord = asArr.length > 1;
+
+  //
+  if (isTwoLetterWord) {
+    asArr[asArr.length - 1] = '~' + asArr[asArr.length - 1];
+    console.log({asArr});
+  }
+
   /**
    * if it a ONE letter query
    */
-  const command = query.length < 2 ? `@key:{${query}}` : `@key:{${query}*}`;
+
+  const command = isTwoLetterWord
+    ? asArr.join(' ')
+    : hasSymbol(query)
+    ? `${query}*`
+    : query.length < 2
+    ? `${query}|~${query}`
+    : `${query}|${query}*`;
+
+  console.log({command});
 
   /**
    *
