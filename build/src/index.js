@@ -4,7 +4,7 @@ const http_1 = require("./core/controllers/http");
 const client_1 = require("./core/db/client");
 const app_config_1 = require("./core/utils/app.config");
 const rate_limiting_config_1 = require("./core/utils/rate-limiting.config");
-const rr = require('@jwerre/rate-limit-redis');
+const { rateLimitRedis } = require('@jwerre/rate-limit-redis');
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
@@ -12,9 +12,9 @@ const compression = require('compression');
 const port = 3001;
 /// set DB client
 (0, client_1.client)().then(c => (global.client = c));
-console.log({
-    rr,
-});
+// console.log({
+//   rr,
+// });
 // App and server
 const app = express();
 /*******************
@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 // use trust proxy if behind load balancer
 app.enable('trust proxy');
-app.use((request, response, next) => rr.rateLimitRedis(rate_limiting_config_1.rateLimitArgs)(request, response, next));
+app.use(rateLimitRedis(rate_limiting_config_1.rateLimitArgs));
 // compress all requests
 app.use(compression());
 // app.use(express.static(__dirname + '/src/static'));
