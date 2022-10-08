@@ -1,8 +1,9 @@
-import {request, Request, response, Response} from 'express';
+import {Application, request, Request, response, Response} from 'express';
 import {WebSocket} from 'ws';
 import {RedisHttpController} from './core/controllers/http';
 import {client} from './core/db/client';
 import {ADMIN_KEY, TTL, PORT} from './core/utils/app.config';
+import {analytics, userIP} from './core/utils/helpers';
 import {rateLimitArgs} from './core/utils/rate-limiting.config';
 const {rateLimitRedis} = require('@jwerre/rate-limit-redis');
 const express = require('express');
@@ -22,7 +23,7 @@ queue.start((err: any) => {
 });
 
 // App and server
-const app = express();
+const app: Application = express();
 
 /*******************
  *  MIDDLEWARES
@@ -35,7 +36,7 @@ const app = express();
 app.use(cors());
 
 /**
- * to return json
+ * to return json data type
  */
 app.use(express.json());
 /**
@@ -50,6 +51,15 @@ app.enable('trust proxy');
 rateLimitRedis(rateLimitArgs);
 
 /**
+ * analytics
+ *
+ */
+app.use((request: Request, response: Response, next: any) => {
+  queue.push(() => analytics(request));
+  next();
+});
+
+/**
  * middleware for all api routes
  * - authorization
  */
@@ -57,13 +67,22 @@ app.all(
   '/api/*',
   async (request: Request, response: Response, next: any): Promise<any> => {
     const bearerHeader = request.headers.authorization;
+
+    /**
+     * ddn't provide a key/token
+     */
     if (!bearerHeader) {
       return response.sendStatus(401);
     } else {
       const bearerToken = bearerHeader.split(' ')[1];
       console.log({bearerToken});
+      /**
+       * If the token is invalid
+       */
       if (bearerToken !== 'THE_ONE') response.sendStatus(401);
-      else next();
+      /**
+       * else go through
+       */ else next();
     }
   }
 );
@@ -82,12 +101,14 @@ app.all(
       (global as any).rateLimitRedis
         .process(request)
         .then((result: any = {}) => {
+          console.log();
+
           cache.set(result.ip, result, result.retry || TTL);
         })
         .catch(console.log);
     });
 
-    /// use cache to get user's usage data, and throttle the user if need
+    /// use cache to get user's usage data, and throttle the user if needed
     const usageData = {
       ...{
         ttl: (
@@ -111,13 +132,21 @@ app.all(
     response.set('retry-after', usageData.retry ? usageData.ttl : 0);
 
     console.log({usageData});
+    /**
+     * flag if the ip address is not consistent
+     */
+    if (usageData?.ip !== userIP(request) && usageData.ip)
+      console.log('\x1b[43m%s\x1b[0m', `${usageData.ip} VS ${userIP(request)}`);
 
+    /**
+     * user has exceeded the usage limit
+     */
     if (usageData?.status === 429) {
       response.send(usageData.status);
     } else {
+      /// else go through
       next();
     }
-    ///
   }
 );
 /**
@@ -128,42 +157,58 @@ app.use(compression());
 
 /**
  * Static files
+ */
+app.use(express.static(__dirname + '/static'));
+
+/**
+ *  admin and maintenance routes, All hide behind a the ADMIN_KEY
  *
  */
-app.use(express.static(__dirname + '/src/static'));
-
-/// admin routes
 app.all('/secret/*', (request: Request, response: Response, next: any) => {
-  console.log('All Admin routes ...');
   const bearerHeader = request.headers.authorization;
+
+  /**
+   * Flag usage of all admin routes
+   */
+  console.log(
+    '\x1b[41m%s\x1b[0m',
+    'All Admin routes ...',
+    'USED TOKEN IS' + bearerHeader
+  );
+  /**
+   * if the token is not included
+   */
   if (!bearerHeader) {
     response.sendStatus(403);
   } else {
     const bearerToken = bearerHeader.split(' ')[1];
     console.log({bearerToken});
-    if (bearerToken !== ADMIN_KEY) response.sendStatus(403);
-    next();
+    if (bearerToken !== ADMIN_KEY) {
+      /**
+       *  if the token is not valid
+       */
+      response.sendStatus(403);
+    } else {
+      // if the token is valid
+      next();
+    }
   }
 });
 
-// auth middleware => https://www.linode.com/docs/guides/authenticating-over-websockets-with-jwt/
-
-// go to docs
 app.get('/', (req: Request, res: Response) => {
   res.redirect('/docs/get-started');
 });
 ///
 app.get('/home', (req: Request, res: Response) => {
-  // res.redirect('/docs/get-started');
-  // console.log();
-  if (res.statusCode !== 429)
-    res.send({
-      said: 'Haappiee',
-    });
-  else res.send(res.statusCode);
+  res.redirect('/docs/get-started');
 });
 // boot/create a Redis index
 app.get('/secret/boot', RedisHttpController.createAnIndex);
+
+// Update the authrized token/key list
+app.get('/secret/whitelist', (request: Request, response: Response) => {
+  response.send('Whitelist Updated');
+});
 
 // Get the route /
 app.get('/secret/feed-data/:category', RedisHttpController.feedData);
@@ -181,6 +226,7 @@ process.once('exit', async () => {
 
   /// the server and the client close the connection
   (global as any).client.quit();
+  (global as any).rateLimitRedis.disconnect();
 });
 /// If and when the app dies
 process.once('disconnect', async () => {
@@ -188,15 +234,31 @@ process.once('disconnect', async () => {
 
   /// the server and the client close the connection
   (global as any).client.quit();
+  (global as any).rateLimitRedis.disconnect();
 });
-
-// app.listen(port, () => console.log('Running on port 3001'));
 
 const server = app.listen(PORT, () =>
   console.log('\x1b[46m%s\x1b[0m', 'Running on port 3001')
 );
 
+console.log({
+  maxConnections: server.maxConnections,
+  getMaxListeners: server.getMaxListeners(),
+  address: server.address(),
+});
+
+server.on('connection', s => {
+  console.log(
+    'Connections  => ',
+    server.connections,
+    ' ',
+    s.remoteAddress,
+    '',
+    s.localAddress
+  );
+});
 server.on('error', () => {
+  (global as any).client.quit();
   (global as any).rateLimitRedis.disconnect();
 });
 

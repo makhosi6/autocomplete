@@ -1,3 +1,4 @@
+import {request, Request} from 'express';
 export function uniqueId(key: string) {
   //reverse the key
   const salt = [...key].reverse().join('');
@@ -34,6 +35,55 @@ export function escapeSymbol(value: string) {
  * @param {number} ms
  * @returns Promise<void>
  */
-function waitFor(ms: number) {
+export function waitFor(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+/**
+ * @description Get incoming requests and send analytics to the server \n
+ * @sumamary **Data recorded**
+ *  - hostname
+ *  - query
+ *  - pathname
+ *  -  path
+ *  - query data
+ *  - ip
+ *  - token
+ *  - time
+ *  - useragent
+ *  - body
+ * - rawHeaders as Array
+ * -
+ *
+ * @param {Request} request
+ *
+ */
+export function analytics(request: Request) {
+  // console.log(request);
+  console.log(userIP(request));
+
+  console.log('Analytics');
+}
+
+export function userIP(req: Request) {
+  return (
+    req.headers['X-Client-IP'] ||
+    req.headers['X-Forwarded-For'] || //(Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
+    req.headers['CF-Connecting-IP'] || //( (Cloudflare)
+    req.headers['Fastly-Client-Ip'] || //( (Fastly CDN and Firebase hosting header when forwared to a cloud function)
+    req.headers['True-Client-Ip'] || //( (Akamai and Cloudflare)
+    req.headers['X-Real-IP'] || //( (Nginx proxy/FastCGI)
+    req.headers['X-Cluster-Client-IP'] || //( (Rackspace LB, Riverbed Stingray)
+    req.headers['X-Forwarded'] ||
+    req.headers['Forwarded-For'] ||
+    req.headers['Forwarded'] ||
+    req.headers['Variations'] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    req.connection?.socket?.remoteAddress ||
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    req?.info?.remoteAddress
+  );
 }

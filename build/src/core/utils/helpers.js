@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
+exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
 function uniqueId(key) {
     //reverse the key
     const salt = [...key].reverse().join('');
@@ -40,4 +40,55 @@ exports.escapeSymbol = escapeSymbol;
 function waitFor(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+exports.waitFor = waitFor;
+/**
+ * @description Get incoming requests and send analytics to the server \n
+ * @sumamary **Data recorded**
+ *  - hostname
+ *  - query
+ *  - pathname
+ *  -  path
+ *  - query data
+ *  - ip
+ *  - token
+ *  - time
+ *  - useragent
+ *  - body
+ * - rawHeaders as Array
+ * -
+ *
+ * @param {Request} request
+ *
+ */
+function analytics(request) {
+    // console.log(request);
+    console.log(userIP(request));
+    console.log('Analytics');
+}
+exports.analytics = analytics;
+function userIP(req) {
+    var _a, _b, _c;
+    return (req.headers['X-Client-IP'] ||
+        req.headers['X-Forwarded-For'] || //(Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
+        req.headers['CF-Connecting-IP'] || //( (Cloudflare)
+        req.headers['Fastly-Client-Ip'] || //( (Fastly CDN and Firebase hosting header when forwared to a cloud function)
+        req.headers['True-Client-Ip'] || //( (Akamai and Cloudflare)
+        req.headers['X-Real-IP'] || //( (Nginx proxy/FastCGI)
+        req.headers['X-Cluster-Client-IP'] || //( (Rackspace LB, Riverbed Stingray)
+        req.headers['X-Forwarded'] ||
+        req.headers['Forwarded-For'] ||
+        req.headers['Forwarded'] ||
+        req.headers['Variations'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        (
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        (_b = (_a = req.connection) === null || _a === void 0 ? void 0 : _a.socket) === null || _b === void 0 ? void 0 : _b.remoteAddress) ||
+        (
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        (_c = req === null || req === void 0 ? void 0 : req.info) === null || _c === void 0 ? void 0 : _c.remoteAddress));
+}
+exports.userIP = userIP;
 //# sourceMappingURL=helpers.js.map
