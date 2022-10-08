@@ -23,7 +23,7 @@ export async function search(query: string, limit = 5, sort: any) {
     : hasSymbol(query) // if has special characters
     ? `${query}*`
     : query.length < 2
-    ? `${query}|~${query}|${query}*` // if has one letter
+    ? `${query}|~${query}|${query}*|"${query}"` // if has one letter
     : `${query}|${query}*`; // else
 
   console.log({command});

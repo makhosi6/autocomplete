@@ -7,31 +7,47 @@ const rate_limiting_config_1 = require("./core/utils/rate-limiting.config");
 const { rateLimitRedis } = require('@jwerre/rate-limit-redis');
 const express = require('express');
 const cors = require('cors');
+const queue = require('./core/queue/index');
+const cache = require('./core/cache/index');
 const compression = require('compression');
-// Our port
-const port = 3001;
 /// set DB client
 (0, client_1.client)().then(c => (global.client = c));
-// console.log({
-//   rr,
-// });
+// begin processing, get notified on end / failure
+queue.start((err) => {
+    // console.log('\x1b[36m%s\x1b[0m', 'START QUEUE!34');
+    if (err)
+        throw err;
+    console.log('\x1b[36m%s\x1b[0m', 'All done:', queue.results);
+});
 // App and server
 const app = express();
 /*******************
  *  MIDDLEWARES
  *
  *****************/
+/**
+ * Allow * Origins
+ *
+ */
 app.use(cors());
+/**
+ * to return json
+ */
 app.use(express.json());
-// use trust proxy if behind load balancer
+/**
+ * use trust proxy if behind load balancer
+ */
 app.enable('trust proxy');
-app.use(rateLimitRedis(rate_limiting_config_1.rateLimitArgs));
-// compress all requests
-app.use(compression());
-// app.use(express.static(__dirname + '/src/static'));
-/// middleware for all api routes
+/**
+ * initialize and configure rate limiting data/service
+ *  - backed by Redis
+ */
+rateLimitRedis(rate_limiting_config_1.rateLimitArgs);
+/**
+ * middleware for all api routes
+ * - authorization
+ */
 app.all('/api/*', async (request, response, next) => {
-    console.log('All API routes ...');
     const bearerHeader = request.headers.authorization;
     if (!bearerHeader) {
         return response.sendStatus(401);
@@ -41,9 +57,63 @@ app.all('/api/*', async (request, response, next) => {
         console.log({ bearerToken });
         if (bearerToken !== 'THE_ONE')
             response.sendStatus(401);
-        next();
+        else
+            next();
     }
 });
+/**
+ * Rating
+ *
+ */
+app.all('/api/*', async (request, response, next) => {
+    /**
+     * push task to the queue: lookup usage on Redis and update the Cache
+     */
+    queue.push(() => {
+        global.rateLimitRedis
+            .process(request)
+            .then((result = {}) => {
+            cache.set(result.ip, result, result.retry || app_config_1.TTL);
+        })
+            .catch(console.log);
+    });
+    /// use cache to get user's usage data, and throttle the user if need
+    const usageData = {
+        ...{
+            ttl: ((cache.getTtl(request.ip) - new Date().getTime()) /
+                1000).toFixed(),
+        },
+        ...cache.get(request.ip),
+    };
+    /**
+     * Set headers
+     */
+    response.set('x-ratelimit-limit', usageData.limit || rate_limiting_config_1.rateLimitArgs.limit);
+    response.set('x-ratelimit-remaining', 
+    // eslint-disable-next-line eqeqeq
+    usageData.remaining == 0
+        ? usageData.remaining
+        : String(usageData.remaining - 1 || rate_limiting_config_1.rateLimitArgs.limit - 1));
+    response.set('retry-after', usageData.retry ? usageData.ttl : 0);
+    console.log({ usageData });
+    if ((usageData === null || usageData === void 0 ? void 0 : usageData.status) === 429) {
+        response.send(usageData.status);
+    }
+    else {
+        next();
+    }
+    ///
+});
+/**
+ *  compress all requests
+ *
+ */
+app.use(compression());
+/**
+ * Static files
+ *
+ */
+app.use(express.static(__dirname + '/src/static'));
 /// admin routes
 app.all('/secret/*', (request, response, next) => {
     console.log('All Admin routes ...');
@@ -66,14 +136,24 @@ app.get('/', (req, res) => {
 });
 ///
 app.get('/home', (req, res) => {
-    res.redirect('/docs/get-started');
+    // res.redirect('/docs/get-started');
+    // console.log();
+    if (res.statusCode !== 429)
+        res.send({
+            said: 'Haappiee',
+        });
+    else
+        res.send(res.statusCode);
 });
 // boot/create a Redis index
 app.get('/secret/boot', http_1.RedisHttpController.createAnIndex);
 // Get the route /
 app.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
 // http search
-app.get('/api/v1/autocomplete/:key', http_1.RedisHttpController.getAll);
+app.get('/api/v1/autocomplete/:key', (request, response) => response.statusCode !== 429
+    ? http_1.RedisHttpController.getAll(request, response)
+    : response.send(response.statusCode));
+app.get('/api/v2/search/autocomplete/:key', http_1.RedisHttpController.getAll);
 /// If and when the app dies
 process.once('exit', async () => {
     console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
@@ -87,8 +167,15 @@ process.once('disconnect', async () => {
     global.client.quit();
 });
 // app.listen(port, () => console.log('Running on port 3001'));
-const server = app.listen(port);
+const server = app.listen(app_config_1.PORT, () => console.log('\x1b[46m%s\x1b[0m', 'Running on port 3001'));
 server.on('error', () => {
     global.rateLimitRedis.disconnect();
 });
+/**
+
+curl --location --request GET 'http://192.168.0.135:3001/api/v1/autocomplete/ye?limit=10&sort=DESC' \
+  --header 'Authorization: Bearer THE_ONE'
+
+ *
+ */
 //# sourceMappingURL=index.js.map

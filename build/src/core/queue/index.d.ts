@@ -1,0 +1,4 @@
+/**
+ *
+ */
+declare const queue: any;

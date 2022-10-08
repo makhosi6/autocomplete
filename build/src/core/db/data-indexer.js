@@ -36,6 +36,7 @@ async function preBoot() {
 exports.preBoot = preBoot;
 async function feedValues(category) {
     try {
+        let num_x = 0;
         ///set DB client
         const client = global.client;
         console.log('Feed VALUES..');
@@ -52,9 +53,10 @@ async function feedValues(category) {
          * feed data into redis
          */
         records.map(async (word) => {
+            num_x++;
             if (word === '')
                 return;
-            await client.json.set(`redis:words:${word}`, '$', {
+            await client.json.set(`redis:words:${num_x}`, '$', {
                 word,
                 // key: word,
                 // uid: uniqueId(word),
