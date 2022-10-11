@@ -72,7 +72,7 @@ app.all(
      * ddn't provide a key/token
      */
     if (!bearerHeader) {
-      return response.sendStatus(401);
+      return response.sendStatus(400);
     } else {
       const bearerToken = bearerHeader.split(' ')[1];
       console.log({bearerToken});
@@ -101,12 +101,14 @@ app.all(
       (global as any).rateLimitRedis
         .process(request)
         .then((result: any = {}) => {
-          console.log();
+          console.log({result});
 
           cache.set(result.ip, result, result.retry || TTL);
         })
         .catch(console.log);
     });
+
+    console.log((global as any).rateLimitRedis);
 
     /// use cache to get user's usage data, and throttle the user if needed
     const usageData = {
@@ -206,7 +208,7 @@ app.get('/home', (req: Request, res: Response) => {
 app.get('/secret/boot', RedisHttpController.createAnIndex);
 
 // Update the authrized token/key list
-app.get('/secret/whitelist', (request: Request, response: Response) => {
+app.post('/secret/whitelist', (request: Request, response: Response) => {
   response.send('Whitelist Updated');
 });
 
@@ -257,6 +259,7 @@ server.on('connection', s => {
     s.localAddress
   );
 });
+
 server.on('error', () => {
   (global as any).client.quit();
   (global as any).rateLimitRedis.disconnect();

@@ -67,7 +67,7 @@ export function analytics(request: Request) {
 export function userIP(req: Request) {
   return (
     req.headers['X-Client-IP'] ||
-    req.headers['X-Forwarded-For'] || //(Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
+    req.headers['X-Forwarded-For'] || // X-Forwarded-For (Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
     req.headers['CF-Connecting-IP'] || //( (Cloudflare)
     req.headers['Fastly-Client-Ip'] || //( (Fastly CDN and Firebase hosting header when forwared to a cloud function)
     req.headers['True-Client-Ip'] || //( (Akamai and Cloudflare)

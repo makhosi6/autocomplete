@@ -62,7 +62,7 @@ app.all('/api/*', async (request, response, next) => {
      * ddn't provide a key/token
      */
     if (!bearerHeader) {
-        return response.sendStatus(401);
+        return response.sendStatus(400);
     }
     else {
         const bearerToken = bearerHeader.split(' ')[1];
@@ -90,11 +90,12 @@ app.all('/api/*', async (request, response, next) => {
         global.rateLimitRedis
             .process(request)
             .then((result = {}) => {
-            console.log();
+            console.log({ result });
             cache.set(result.ip, result, result.retry || app_config_1.TTL);
         })
             .catch(console.log);
     });
+    console.log(global.rateLimitRedis);
     /// use cache to get user's usage data, and throttle the user if needed
     const usageData = {
         ...{
@@ -180,7 +181,7 @@ app.get('/home', (req, res) => {
 // boot/create a Redis index
 app.get('/secret/boot', http_1.RedisHttpController.createAnIndex);
 // Update the authrized token/key list
-app.get('/secret/whitelist', (request, response) => {
+app.post('/secret/whitelist', (request, response) => {
     response.send('Whitelist Updated');
 });
 // Get the route /
