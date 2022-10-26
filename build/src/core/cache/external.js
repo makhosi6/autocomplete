@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const app_config_1 = require("../utils/app.config");
+const node_config_1 = require("../utils/node.config");
 const NodeCache = require('node-cache');
-const cache = new NodeCache({ stdTTL: app_config_1.TTL, checkperiod: 120 });
+const cache = new NodeCache({ stdTTL: node_config_1.TTL, checkperiod: 120 });
 cache.on('flush_stats', () => {
     console.log('\x1b[36m%s\x1b[0m', 'Cache Stats flushed');
 });

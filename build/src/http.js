@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = require("./core/controllers/http");
 const client_1 = require("./core/db/client");
-const app_config_1 = require("./core/utils/app.config");
+const node_config_1 = require("./core/utils/node.config");
 const helpers_1 = require("./core/utils/helpers");
 const rate_limiting_config_1 = require("./core/utils/rate-limiting.config");
 const { rateLimitRedis } = require('@jwerre/rate-limit-redis');
@@ -109,7 +109,7 @@ app.all('/api/*', (request, response, next) => __awaiter(void 0, void 0, void 0,
             .process(request)
             .then((result = {}) => {
             console.log({ result });
-            cache.set(result.ip, result, result.retry || app_config_1.TTL);
+            cache.set(result.ip, result, result.retry || node_config_1.TTL);
         })
             .catch(console.log);
     });
@@ -174,7 +174,7 @@ app.all('/secret/*', (request, response, next) => {
     else {
         const bearerToken = bearerHeader.split(' ')[1];
         console.log({ bearerToken });
-        if (bearerToken !== app_config_1.ADMIN_KEY) {
+        if (bearerToken !== node_config_1.ADMIN_KEY) {
             /**
              *  if the token is not valid
              */
@@ -234,7 +234,7 @@ process.once('disconnect', () => __awaiter(void 0, void 0, void 0, function* () 
     global.client.quit();
     global.rateLimitRedis.disconnect();
 }));
-const server = app.listen(app_config_1.PORT, () => console.log('\x1b[46m%s\x1b[0m', 'Running on port 3001'));
+const server = app.listen(node_config_1.PORT, () => console.log('\x1b[46m%s\x1b[0m', 'Running on port 3001'));
 console.log({
     maxConnections: server.maxConnections,
     getMaxListeners: server.getMaxListeners(),

@@ -1,4 +1,4 @@
-import {TTL} from '../utils/app.config';
+import {TTL} from '../utils/node.config';
 const NodeCache = require('node-cache');
 const cache = new NodeCache({stdTTL: TTL, checkperiod: 120});
 
