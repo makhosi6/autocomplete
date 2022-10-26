@@ -37,3 +37,15 @@ export declare function waitFor(ms: number): Promise<unknown>;
  */
 export declare function analytics(request: Request): void;
 export declare function userIP(req: Request): any;
+/**
+ * Get a list of registered/authenticated users from the database
+ * @returns Promise<Array<object>>
+ *
+ */
+export declare const getWhiteList: () => Promise<Array<object>>;
+/**
+ * Validate the user auth token against the stored collection of tokens
+ * @param token user auth token
+ * @returns {boolean}
+ */
+export declare const isAuth: (token: string) => Promise<boolean>;

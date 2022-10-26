@@ -3,21 +3,33 @@ import {WebSocket} from 'ws';
 import {RedisHttpController} from './core/controllers/http';
 import {client} from './core/db/client';
 import {ADMIN_KEY, TTL, PORT} from './core/utils/app.config';
-import {analytics, userIP} from './core/utils/helpers';
+import {analytics, userIP, getWhiteList, isAuth} from './core/utils/helpers';
 import {rateLimitArgs} from './core/utils/rate-limiting.config';
 const {rateLimitRedis} = require('@jwerre/rate-limit-redis');
 const express = require('express');
 const cors = require('cors');
 const queue = require('./core/queue/index');
-const cache = require('./core/cache/index');
+const cache = require('./core/cache/external');
 const compression = require('compression');
 
 /// set DB client
 client().then(c => ((global as any).client = c));
 
+/// get whitelist
+// to store locally
+getWhiteList().then(users =>
+  users.map(u =>
+    internal_cache.set(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      u.key,
+      u
+    )
+  )
+);
+
 // begin processing, get notified on end / failure
 queue.start((err: any) => {
-  // console.log('\x1b[36m%s\x1b[0m', 'START QUEUE!34');
   if (err) throw err;
   console.log('\x1b[36m%s\x1b[0m', 'All done:', queue.results);
 });
@@ -30,7 +42,7 @@ const app: Application = express();
  *
  *****************/
 /**
- * Allow * Origins
+ * Allow All Origins
  *
  */
 app.use(cors());
@@ -79,7 +91,7 @@ app.all(
       /**
        * If the token is invalid
        */
-      if (bearerToken !== 'THE_ONE') response.sendStatus(401);
+      if (await isAuth(bearerToken)) response.sendStatus(401);
       /**
        * else go through
        */ else next();
@@ -209,8 +221,23 @@ app.get('/secret/boot', RedisHttpController.createAnIndex);
 
 // Update the authrized token/key list
 app.post('/secret/whitelist', (request: Request, response: Response) => {
-  response.send('Whitelist Updated');
+  try {
+    console.log('Whitelist Updated');
+    /// user auth infor
+    const body = request.body;
+    /// update internal white list store
+    internal_cache.set(body.key, body);
+
+    response.send(201);
+  } catch (error) {
+    response.send(500);
+  }
 });
+
+// // Update the authrized token/key list
+// app.post('/secret/whitelist', (request: Request, response: Response) => {
+//   response.send('Whitelist Updated');
+// });
 
 // Get the route /
 app.get('/secret/feed-data/:category', RedisHttpController.feedData);

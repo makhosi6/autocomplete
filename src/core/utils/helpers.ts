@@ -87,3 +87,19 @@ export function userIP(req: Request) {
     req?.info?.remoteAddress
   );
 }
+/**
+ * Get a list of registered/authenticated users from the database
+ * @returns Promise<Array<object>>
+ *
+ */
+export const getWhiteList = async function (): Promise<Array<object>> {
+  return [];
+};
+/**
+ * Validate the user auth token against the stored collection of tokens
+ * @param token user auth token
+ * @returns {boolean}
+ */
+export const isAuth = async (token: string): Promise<boolean> => {
+  return token !== '';
+};

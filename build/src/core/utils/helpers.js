@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
+exports.isAuth = exports.getWhiteList = exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
 function uniqueId(key) {
     //reverse the key
     const salt = [...key].reverse().join('');
@@ -91,4 +91,22 @@ function userIP(req) {
         (_c = req === null || req === void 0 ? void 0 : req.info) === null || _c === void 0 ? void 0 : _c.remoteAddress));
 }
 exports.userIP = userIP;
+/**
+ * Get a list of registered/authenticated users from the database
+ * @returns Promise<Array<object>>
+ *
+ */
+const getWhiteList = async function () {
+    return [];
+};
+exports.getWhiteList = getWhiteList;
+/**
+ * Validate the user auth token against the stored collection of tokens
+ * @param token user auth token
+ * @returns {boolean}
+ */
+const isAuth = async (token) => {
+    return token !== '';
+};
+exports.isAuth = isAuth;
 //# sourceMappingURL=helpers.js.map

@@ -9,13 +9,18 @@ const { rateLimitRedis } = require('@jwerre/rate-limit-redis');
 const express = require('express');
 const cors = require('cors');
 const queue = require('./core/queue/index');
-const cache = require('./core/cache/index');
+const cache = require('./core/cache/external');
 const compression = require('compression');
 /// set DB client
 (0, client_1.client)().then(c => (global.client = c));
+/// get whitelist
+// to store locally
+(0, helpers_1.getWhiteList)().then(users => users.map(u => internal_cache.set(
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+u.key, u)));
 // begin processing, get notified on end / failure
 queue.start((err) => {
-    // console.log('\x1b[36m%s\x1b[0m', 'START QUEUE!34');
     if (err)
         throw err;
     console.log('\x1b[36m%s\x1b[0m', 'All done:', queue.results);
@@ -27,7 +32,7 @@ const app = express();
  *
  *****************/
 /**
- * Allow * Origins
+ * Allow All Origins
  *
  */
 app.use(cors());
@@ -70,7 +75,7 @@ app.all('/api/*', async (request, response, next) => {
         /**
          * If the token is invalid
          */
-        if (bearerToken !== 'THE_ONE')
+        if (await (0, helpers_1.isAuth)(bearerToken))
             response.sendStatus(401);
         /**
          * else go through
@@ -182,8 +187,22 @@ app.get('/home', (req, res) => {
 app.get('/secret/boot', http_1.RedisHttpController.createAnIndex);
 // Update the authrized token/key list
 app.post('/secret/whitelist', (request, response) => {
-    response.send('Whitelist Updated');
+    try {
+        console.log('Whitelist Updated');
+        /// user auth infor
+        const body = request.body;
+        /// update internal white list store
+        internal_cache.set(body.key, body);
+        response.send(201);
+    }
+    catch (error) {
+        response.send(500);
+    }
 });
+// // Update the authrized token/key list
+// app.post('/secret/whitelist', (request: Request, response: Response) => {
+//   response.send('Whitelist Updated');
+// });
 // Get the route /
 app.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
 // http search
