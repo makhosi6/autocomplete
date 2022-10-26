@@ -1,4 +1,7 @@
 import {request, Request} from 'express';
+
+const internal_cache = require('../cache/internal');
+
 export function uniqueId(key: string) {
   //reverse the key
   const salt = [...key].reverse().join('');
@@ -93,7 +96,7 @@ export function userIP(req: Request) {
  *
  */
 export const getWhiteList = async function (): Promise<Array<object>> {
-  return [];
+  return [{key: 'THE_ONE'}, {key: 'TOKEN'}];
 };
 /**
  * Validate the user auth token against the stored collection of tokens
@@ -101,5 +104,14 @@ export const getWhiteList = async function (): Promise<Array<object>> {
  * @returns {boolean}
  */
 export const isAuth = async (token: string): Promise<boolean> => {
-  return token !== '';
+  console.log('\x1b[43m%s\x1b[0m', '🚧🚧🚧🚧 ', token);
+  const user = internal_cache.get(token);
+
+  console.log({foundUser: user});
+
+  /// if user is not on the whitelist
+  if (user === undefined || user === null) return false;
+  else if (user instanceof Object) return true;
+  console.log('\x1b[43m%s\x1b[0m', '🚧🚧🚧🚧 USER IS UNDEFINED');
+  return false;
 };
