@@ -159,6 +159,7 @@ const getWhiteList = function () {
                 redirect: 'follow',
             };
             const response = yield (0, exports.fetch)(node_config_1.SERVICE_TWO + '/tokens', requestOptions);
+            // console.log('TOKENS RESPONSE', await response.text());
             const data = yield response.json();
             console.log({ data });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

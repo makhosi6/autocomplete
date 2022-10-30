@@ -151,6 +151,9 @@ export const getWhiteList = async function (): Promise<Array<object>> {
     };
 
     const response = await fetch(SERVICE_TWO + '/tokens', requestOptions);
+
+    // console.log('TOKENS RESPONSE', await response.text());
+
     const data = await response.json();
     console.log({data});
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

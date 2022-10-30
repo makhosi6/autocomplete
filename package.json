@@ -15,6 +15,7 @@
     "pretest": "npm.cmd run compile",
     "posttest": "npm.cmd run lint",
     "http": "node build/src/http.js",
+    "start": "pm2 start build/src/http.js --time",
     "prod": "node deployment/src/http.js",
     "ws": "node build/src/ws.js",
     "build": "javascript-obfuscator ./build --output ./deployment --disable-console-output false --rename-globals true --rename-properties true --rename-properties-mode safe"

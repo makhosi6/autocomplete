@@ -10,7 +10,7 @@ queue.on('success', (result: any, job: {toString: () => string}) => {
     'job finished processing:',
     job.toString().replace(/\n/g, '')
   );
-  console.log('\x1b[36m%s\x1b[0m', 'The result is:', result);
+  console.log('\x1b[36m%s\x1b[0m', 'The queue done! result is:', result);
 });
 
 queue.on('timeout', (next: () => void, job: {toString: () => string}) => {
