@@ -5,11 +5,17 @@
     "sourceMap": false,
     "rootDir": ".",
     "outDir": "build",
-    "target": "ES2015"
+    "target": "ES2015",
+    "skipLibCheck": true
   },
 
   "watchOptions": {
-    "excludeDirectories": ["**/node_modules", "build", "deployment/*"]
+    "excludeDirectories": [
+      "**/node_modules",
+      "node_modules",
+      "build",
+      "deployment/*"
+    ]
   },
   "exclude": ["node_modules", "**/node_modules", "deployment/**/*.js"],
   "include": ["src/**/*.ts", "test/**/*.ts"]

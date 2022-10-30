@@ -1,5 +1,5 @@
-import {Application, request, Request, response, Response} from 'express';
-import {WebSocket} from 'ws';
+import {Application, Request, Response} from 'express';
+// import {WebSocket} from 'ws';
 import {RedisHttpController} from './core/controllers/http';
 import {client} from './core/db/client';
 import {ADMIN_KEY, TTL, PORT} from './core/utils/node.config';
@@ -19,12 +19,12 @@ client().then(c => ((global as any).client = c));
 /// get whitelist
 // to store locally
 getWhiteList().then(users =>
-  users.map(u =>
+  users.map(user =>
     internal_cache.set(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      u.key,
-      u
+      user.token,
+      user
     )
   )
 );
@@ -124,17 +124,17 @@ app.all(
         .catch(console.log);
     });
 
-    console.log((global as any).rateLimitRedis);
+    // console.log((global as any).rateLimitRedis);
 
     /// use cache to get user's usage data, and throttle the user if needed
     const usageData = {
       ...{
         ttl: (
-          (cache.getTtl(request.ip) - new Date().getTime()) /
+          (cache.getTtl(userIP(request)) - new Date().getTime()) /
           1000
         ).toFixed(),
       },
-      ...cache.get(request.ip),
+      ...cache.get(userIP(request)),
     };
     /**
      * Set headers
@@ -230,8 +230,25 @@ app.post('/secret/whitelist', (request: Request, response: Response) => {
     /// user auth infor
     const body = request.body;
     /// update internal white list store
-    internal_cache.set(body.key, body);
+    internal_cache.set(body.token, body);
 
+    console.log(internal_cache.getStats());
+
+    response.send(201);
+  } catch (error) {
+    response.send(500);
+  }
+});
+// Update the authrized token/key list
+app.delete('/secret/whitelist/', (request: Request, response: Response) => {
+  try {
+    console.log('Whitelist Updated');
+    /// user auth infor
+    const body = request.body;
+    /// update internal white list store
+    internal_cache.take(body.token);
+
+    console.log(internal_cache.getStats());
     response.send(201);
   } catch (error) {
     response.send(500);
@@ -244,6 +261,12 @@ app.post('/secret/whitelist', (request: Request, response: Response) => {
 // });
 
 // Get the route /
+app.get('/secret/feed-data/:category', RedisHttpController.feedData);
+
+/// addd new token
+app.get('/secret/feed-data/:category', RedisHttpController.feedData);
+
+/// remove token
 app.get('/secret/feed-data/:category', RedisHttpController.feedData);
 // http search
 app.get('/api/v1/autocomplete/:key', (request: Request, response: Response) =>

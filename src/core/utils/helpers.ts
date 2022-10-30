@@ -1,4 +1,7 @@
-import {request, Request} from 'express';
+import {SERVICE_TWO, ADMIN_KEY} from './node.config';
+import {Request} from 'express';
+const {Headers} = require('node-fetch');
+// import {Headers} from 'node-fetch';
 
 const internal_cache = require('../cache/internal');
 
@@ -60,11 +63,52 @@ export function waitFor(ms: number) {
  * @param {Request} request
  *
  */
-export function analytics(request: Request) {
-  // console.log(request);
-  console.log(userIP(request));
+export async function analytics(request: Request) {
+  try {
+    // console.log(request);
+    console.log(userIP(request));
 
-  console.log('Analytics');
+    //auth headers
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + ADMIN_KEY);
+
+    const res = await fetch(SERVICE_TWO + '/analytics', {
+      method: 'POST',
+      headers: myHeaders,
+      body: JSON.stringify({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        token: request.headers.authorization.split(' ')[1] || '',
+        x_ip: userIP(request),
+        x_query: request.params.key,
+        x_hostname: request.hostname || '',
+        timestamp: new Date().getTime(),
+        x_params: JSON.stringify(request.query),
+        x_rawHeaders: request.rawHeaders.toString(),
+        x_body: request.body ? JSON.stringify(request.body) : '',
+      }),
+    });
+    console.log(
+      JSON.stringify({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        token: request.headers.authorization.split(' ')[1] || '',
+        x_ip: userIP(request),
+        x_query: request.params.key,
+        x_hostname: request.hostname || '',
+        timestamp: new Date().getTime(),
+        x_params: JSON.stringify(request.query),
+        x_rawHeaders: request.rawHeaders.toString(),
+        x_body: request.body ? JSON.stringify(request.body) : '',
+      })
+    );
+
+    console.log('\x1b[43m%s\x1b[0m', `Analytics sent! status ${res.status}`);
+
+    console.log('Analytics');
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export function userIP(req: Request) {
@@ -96,7 +140,28 @@ export function userIP(req: Request) {
  *
  */
 export const getWhiteList = async function (): Promise<Array<object>> {
-  return [{key: 'THE_ONE'}, {key: 'TOKEN'}];
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', 'Bearer ' + ADMIN_KEY);
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    const response = await fetch(SERVICE_TWO + '/tokens', requestOptions);
+    const data = await response.json();
+    console.log({data});
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+
+    return data;
+  } catch (error) {
+    console.log(error);
+
+    return [];
+  }
 };
 /**
  * Validate the user auth token against the stored collection of tokens
@@ -115,3 +180,9 @@ export const isAuth = async (token: string): Promise<boolean> => {
   console.log('\x1b[43m%s\x1b[0m', '🚧🚧🚧🚧 USER IS UNDEFINED');
   return false;
 };
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+export const fetch = (...args) =>
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  import('node-fetch').then(({default: fetch}) => fetch(...args));

@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// import {WebSocket} from 'ws';
 const http_1 = require("./core/controllers/http");
 const client_1 = require("./core/db/client");
 const node_config_1 = require("./core/utils/node.config");
 const helpers_1 = require("./core/utils/helpers");
-const rate_limiting_config_1 = require("./core/utils/rate-limiting.config");
+const harmony_config_1 = require("./core/utils/harmony.config");
 const { rateLimitRedis } = require('@jwerre/rate-limit-redis');
 const express = require('express');
 const cors = require('cors');
@@ -25,10 +26,10 @@ const compression = require('compression');
 (0, client_1.client)().then(c => (global.client = c));
 /// get whitelist
 // to store locally
-(0, helpers_1.getWhiteList)().then(users => users.map(u => internal_cache.set(
+(0, helpers_1.getWhiteList)().then(users => users.map(user => internal_cache.set(
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-u.key, u)));
+user.token, user)));
 // begin processing, get notified on end / failure
 queue.start((err) => {
     if (err)
@@ -58,7 +59,7 @@ app.enable('trust proxy');
  * initialize and configure rate limiting data/service
  *  - backed by Redis
  */
-rateLimitRedis(rate_limiting_config_1.rateLimitArgs);
+rateLimitRedis(harmony_config_1.rateLimitArgs);
 /**
  * analytics
  *
@@ -113,21 +114,21 @@ app.all('/api/*', (request, response, next) => __awaiter(void 0, void 0, void 0,
         })
             .catch(console.log);
     });
-    console.log(global.rateLimitRedis);
+    // console.log((global as any).rateLimitRedis);
     /// use cache to get user's usage data, and throttle the user if needed
     const usageData = Object.assign({
-        ttl: ((cache.getTtl(request.ip) - new Date().getTime()) /
+        ttl: ((cache.getTtl((0, helpers_1.userIP)(request)) - new Date().getTime()) /
             1000).toFixed(),
-    }, cache.get(request.ip));
+    }, cache.get((0, helpers_1.userIP)(request)));
     /**
      * Set headers
      */
-    response.set('x-ratelimit-limit', usageData.limit || rate_limiting_config_1.rateLimitArgs.limit);
+    response.set('x-ratelimit-limit', usageData.limit || harmony_config_1.rateLimitArgs.limit);
     response.set('x-ratelimit-remaining', 
     // eslint-disable-next-line eqeqeq
     usageData.remaining == 0
         ? usageData.remaining
-        : String(usageData.remaining - 1 || rate_limiting_config_1.rateLimitArgs.limit - 1));
+        : String(usageData.remaining - 1 || harmony_config_1.rateLimitArgs.limit - 1));
     response.set('retry-after', usageData.retry ? usageData.ttl : 0);
     console.log({ usageData });
     /**
@@ -202,7 +203,23 @@ app.post('/secret/whitelist', (request, response) => {
         /// user auth infor
         const body = request.body;
         /// update internal white list store
-        internal_cache.set(body.key, body);
+        internal_cache.set(body.token, body);
+        console.log(internal_cache.getStats());
+        response.send(201);
+    }
+    catch (error) {
+        response.send(500);
+    }
+});
+// Update the authrized token/key list
+app.delete('/secret/whitelist/', (request, response) => {
+    try {
+        console.log('Whitelist Updated');
+        /// user auth infor
+        const body = request.body;
+        /// update internal white list store
+        internal_cache.take(body.token);
+        console.log(internal_cache.getStats());
         response.send(201);
     }
     catch (error) {
@@ -214,6 +231,10 @@ app.post('/secret/whitelist', (request, response) => {
 //   response.send('Whitelist Updated');
 // });
 // Get the route /
+app.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
+/// addd new token
+app.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
+/// remove token
 app.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
 // http search
 app.get('/api/v1/autocomplete/:key', (request, response) => response.statusCode !== 429

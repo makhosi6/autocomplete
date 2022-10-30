@@ -1,4 +1,4 @@
-import {db_config} from './../utils/db.config';
+import {db_config} from './../utils/node.config';
 /**
  *
  * @returns redis client

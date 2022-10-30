@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
-const db_config_1 = require("./../utils/db.config");
+const node_config_1 = require("./../utils/node.config");
 /**
  *
  * @returns redis client
@@ -28,7 +28,7 @@ function client() {
          * auth_pass: '',
         };
          */
-        client = redis.createClient(db_config_1.db_config);
+        client = redis.createClient(node_config_1.db_config);
         console.log('\x1b[31m%s\x1b[0m', 'Connecting to Redis server on');
         yield client.connect();
         return client;
