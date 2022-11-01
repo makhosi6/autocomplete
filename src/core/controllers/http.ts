@@ -18,7 +18,18 @@ export class RedisHttpController {
   static async getAll(request: Request, response: Response): Promise<any> {
     try {
       //query value
-      const query: string = request.params.key;
+      const query: string =
+        request.params.key || request.query.q?.toString() || '';
+
+      /**
+       * bad request guard
+       */
+
+      if (!query) {
+        response.send('BAD REQUEST');
+
+        return;
+      }
       /**
        * optional sort ['DESC' | 'ASC' ]
        *

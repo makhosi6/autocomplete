@@ -32,6 +32,7 @@
     "express": "^4.17.2",
     "express-pino-logger": "^7.0.0",
     "express-ws": "^5.0.2",
+    "morgan": "^1.10.0",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
     "pino": "^8.6.1",

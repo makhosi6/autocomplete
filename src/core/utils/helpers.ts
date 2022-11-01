@@ -1,5 +1,6 @@
 import {SERVICE_TWO, ADMIN_KEY} from './node.config';
 import {Request} from 'express';
+import {kill} from 'process';
 const {Headers} = require('node-fetch');
 // import {Headers} from 'node-fetch';
 
@@ -189,3 +190,15 @@ export const fetch = (...args) =>
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   import('node-fetch').then(({default: fetch}) => fetch(...args));
+/**
+ * If and when the app dies or it's stopped
+ */
+export const killed = async () => {
+  console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
+
+  /**
+   * close  the server and the client DB  connection
+   */
+  (global as any).client.quit();
+  (global as any).rateLimitRedis.disconnect();
+};
