@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetch = exports.isAuth = exports.getWhiteList = exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
+exports.killed = exports.fetch = exports.isAuth = exports.getWhiteList = exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
 const node_config_1 = require("./node.config");
 const { Headers } = require('node-fetch');
 // import {Headers} from 'node-fetch';
@@ -81,34 +81,26 @@ function analytics(request) {
             //auth headers
             const myHeaders = new Headers();
             myHeaders.append('Authorization', 'Bearer ' + node_config_1.ADMIN_KEY);
-            const res = yield (0, exports.fetch)(node_config_1.SERVICE_TWO + '/analytics', {
-                method: 'POST',
-                headers: myHeaders,
-                body: JSON.stringify({
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    token: request.headers.authorization.split(' ')[1] || '',
-                    x_ip: userIP(request),
-                    x_query: request.params.key,
-                    x_hostname: request.hostname || '',
-                    timestamp: new Date().getTime(),
-                    x_params: JSON.stringify(request.query),
-                    x_rawHeaders: request.rawHeaders.toString(),
-                    x_body: request.body ? JSON.stringify(request.body) : '',
-                }),
-            });
-            console.log(JSON.stringify({
+            const data = {
+                uuky: '_placeholder',
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                token: request.headers.authorization.split(' ')[1] || '',
+                x_token: request.headers.authorization.split(' ')[1] || '',
                 x_ip: userIP(request),
-                x_query: request.params.key,
+                x_query: request.params.key || 'unknown',
+                path: request.path,
                 x_hostname: request.hostname || '',
                 timestamp: new Date().getTime(),
                 x_params: JSON.stringify(request.query),
                 x_rawHeaders: request.rawHeaders.toString(),
                 x_body: request.body ? JSON.stringify(request.body) : '',
-            }));
+            };
+            const res = yield (0, exports.fetch)(node_config_1.SERVICE_TWO + '/analytics', {
+                method: 'POST',
+                headers: myHeaders,
+                body: JSON.stringify(data),
+            });
+            console.log(JSON.stringify(data));
             console.log('\x1b[43m%s\x1b[0m', `Analytics sent! status ${res.status}`);
             console.log('Analytics');
         }
@@ -198,3 +190,15 @@ const fetch = (...args) =>
 // @ts-ignore
 Promise.resolve().then(() => require('node-fetch')).then(({ default: fetch }) => fetch(...args));
 exports.fetch = fetch;
+/**
+ * If and when the app dies or it's stopped
+ */
+const killed = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('\x1b[31m%s\x1b[0m', 'PROCESS STOPPED...');
+    /**
+     * close  the server and the client DB  connection
+     */
+    global.client.quit();
+    global.rateLimitRedis.disconnect();
+});
+exports.killed = killed;

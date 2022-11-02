@@ -94,8 +94,8 @@ app.use(express.static(__dirname + '/static'));
 /**
  * Register routes
  */
-app.use(secret);
 app.use(api);
+app.use(secret);
 /**
  * Home routes
  */
@@ -111,19 +111,27 @@ app.get('/home', (req: Request, res: Response) => {
 const server = app.listen(PORT, () =>
   console.log('\x1b[46m%s\x1b[0m', 'Running on port 3001')
 );
-
-server.on('connection', s => {
+/**
+ *
+ * @param socket
+ */
+const onConnEv = (socket: any) => {
   console.log(
     'Connections  => ',
     server.connections,
     ' ',
-    s.remoteAddress,
+    socket.remoteAddress,
     '',
-    s.localAddress
+    socket.localAddress
   );
-});
+};
+
 /**
- * If the app/server dies, just close the DB connection
+ * App/Server initialized, Log just to confirm
+ */
+server.on('connection', onConnEv);
+/**
+ * If the app/server dies
  */
 server.on('error', killed);
 

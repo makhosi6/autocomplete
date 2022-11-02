@@ -72,37 +72,26 @@ export async function analytics(request: Request) {
     //auth headers
     const myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ' + ADMIN_KEY);
-
+    const data = {
+      uuky: '_placeholder',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      x_token: request.headers.authorization.split(' ')[1] || '',
+      x_ip: userIP(request),
+      x_query: request.params.key || 'unknown',
+      path: request.path,
+      x_hostname: request.hostname || '',
+      timestamp: new Date().getTime(),
+      x_params: JSON.stringify(request.query),
+      x_rawHeaders: request.rawHeaders.toString(),
+      x_body: request.body ? JSON.stringify(request.body) : '',
+    };
     const res = await fetch(SERVICE_TWO + '/analytics', {
       method: 'POST',
       headers: myHeaders,
-      body: JSON.stringify({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        token: request.headers.authorization.split(' ')[1] || '',
-        x_ip: userIP(request),
-        x_query: request.params.key,
-        x_hostname: request.hostname || '',
-        timestamp: new Date().getTime(),
-        x_params: JSON.stringify(request.query),
-        x_rawHeaders: request.rawHeaders.toString(),
-        x_body: request.body ? JSON.stringify(request.body) : '',
-      }),
+      body: JSON.stringify(data),
     });
-    console.log(
-      JSON.stringify({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        token: request.headers.authorization.split(' ')[1] || '',
-        x_ip: userIP(request),
-        x_query: request.params.key,
-        x_hostname: request.hostname || '',
-        timestamp: new Date().getTime(),
-        x_params: JSON.stringify(request.query),
-        x_rawHeaders: request.rawHeaders.toString(),
-        x_body: request.body ? JSON.stringify(request.body) : '',
-      })
-    );
+    console.log(JSON.stringify(data));
 
     console.log('\x1b[43m%s\x1b[0m', `Analytics sent! status ${res.status}`);
 

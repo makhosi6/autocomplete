@@ -27,10 +27,18 @@ class RedisHttpController {
      * - minimum is 1
      */
     static getAll(request, response) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 //query value
-                const query = request.params.key;
+                const query = request.params.key || ((_a = request.query.q) === null || _a === void 0 ? void 0 : _a.toString()) || '';
+                /**
+                 * bad request guard
+                 */
+                if (!query) {
+                    response.send('BAD REQUEST');
+                    return;
+                }
                 /**
                  * optional sort ['DESC' | 'ASC' ]
                  *

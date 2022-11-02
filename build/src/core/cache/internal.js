@@ -15,6 +15,7 @@ internal_cache.on('expired', (key, value) => {
 internal_cache.on('set', (key, value) => {
     console.log('\x1b[33m%s\x1b[0m', 'Internal Cache: CACHE: On set ' + key);
     console.log({ CACHE_STATS: internal_cache.getStats() });
+    console.log({ cacheLength: internal_cache.keys().length });
 });
 internal_cache.on('del', (key, value) => {
     console.log('\x1b[33m%s\x1b[0m', 'Internal Cache: CACHE: On Delete ' + key);

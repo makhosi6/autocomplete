@@ -2,7 +2,8 @@ import {Request, Response} from 'express';
 import {rateLimitArgs} from '../core/utils/harmony.config';
 import {userIP} from '../core/utils/helpers';
 import {TTL} from '../core/utils/node.config';
-const cache = require('./core/cache/external');
+const cache = require('../core/cache/external');
+const queue = require('../core/queue/index');
 
 /**
  * Rate limiter for API routes
@@ -67,7 +68,7 @@ export const throttle = async (
    * user has exceeded the usage limit
    */
   if (usageData?.status === 429) {
-    response.send(usageData.status);
+    response.sendStatus(usageData.status);
   } else {
     /// else go through
     next();

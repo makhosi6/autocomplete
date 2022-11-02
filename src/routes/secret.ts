@@ -22,9 +22,9 @@ const updateWhitelist = (request: Request, response: Response) => {
 
     console.log(internal_cache.getStats());
 
-    response.send(201);
+    response.sendStatus(201);
   } catch (error) {
-    response.send(500);
+    response.sendStatus(500);
   }
 };
 /**
@@ -41,9 +41,9 @@ const removeFrmWhitelist = (request: Request, response: Response) => {
     internal_cache.take(body.token);
 
     console.log(internal_cache.getStats());
-    response.send(201);
+    response.sendStatus(201);
   } catch (error) {
-    response.send(500);
+    response.sendStatus(500);
   }
 };
 

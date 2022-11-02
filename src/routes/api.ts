@@ -5,7 +5,7 @@ import {RedisHttpController} from '../core/controllers/http';
 import {rateLimitArgs} from '../core/utils/harmony.config';
 import {userIP} from '../core/utils/helpers';
 import {TTL} from '../core/utils/node.config';
-const cache = require('./core/cache/external');
+const cache = require('../core/cache/external');
 const express = require('express');
 
 // router
@@ -26,7 +26,7 @@ api.use(authorization);
 api.get('/api/v1/autocomplete/:key', (request: Request, response: Response) =>
   response.statusCode !== 429
     ? RedisHttpController.getAll(request, response)
-    : response.send(response.statusCode)
+    : response.sendStatus(response.statusCode)
 );
 
 /**
