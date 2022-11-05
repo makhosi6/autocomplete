@@ -80,6 +80,7 @@ app.use(cors());
  * to return json data type
  */
 app.use(express.json());
+app.disable('x-powered-by');
 /**
  * use trust proxy if behind load balancer
  */

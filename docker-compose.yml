@@ -1,17 +1,17 @@
 version: '3.9'
 services:
 # redis GUI tool
-  insight:
-    image: redislabs/redisinsight
-    ports:
-      - "8001:8001"
-    volumes: []
-    restart: on-failure
-    depends_on:
-      - redis
+  # insight:
+  #   image: redislabs/redisinsight
+  #   ports:
+  #     - "8001:8001"
+  #   volumes: []
+  #   restart: on-failure
+  #   depends_on:
+  #     - redis
 # redis db
   redis:
-    image: redislabs/redis
+    image: redislabs/redismod
     ports:
       - '6379:6379'
 # node service/app
