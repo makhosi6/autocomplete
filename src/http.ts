@@ -7,7 +7,6 @@ import {rateLimitArgs} from './core/utils/harmony.config';
 import {analyticsHandler} from './middleware/analytics';
 import secret from './routes/secret';
 import api from './routes/api';
-import {nextTick} from 'process';
 const {rateLimitRedis} = require('rate-limit-redis');
 
 const express = require('express');
