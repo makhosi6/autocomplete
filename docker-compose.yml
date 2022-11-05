@@ -1,29 +1,18 @@
 version: '3.9'
 services:
-# redis GUI tool
-  insight:
-    image: redislabs/redisinsight
-    ports:
-      - "8001:8001"
-    volumes: []
-    restart: on-failure
-    depends_on:
-      - redis
-# redis db
   redis:
-    image: redislabs/redis
+    image: 'redis/redis-stack'
     ports:
       - '6379:6379'
-# node service/app
+      - '8001:8001'
   web1:
     restart: on-failure
     build: ./
     ports:
       - '3001:3001'
-# reverse proxy as a loadbalancer
   nginx:
     build: ./nginx
     ports:
-      - '2022:80'
+    - '2022:80'
     depends_on:
-      - web1
+    - web1
