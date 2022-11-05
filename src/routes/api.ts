@@ -1,6 +1,6 @@
 import {authorization} from './../middleware/authorization';
 import {throttle} from './../middleware/throttle';
-import {Request, Response} from 'express';
+import {Request, Response, Router} from 'express';
 import {RedisHttpController} from '../core/controllers/http';
 import {rateLimitArgs} from '../core/utils/harmony.config';
 import {userIP} from '../core/utils/helpers';
@@ -9,7 +9,7 @@ const cache = require('../core/cache/external');
 const express = require('express');
 
 // router
-const api = express.Router();
+const api: Router = express.Router();
 /**
  * Rate limiting
  *

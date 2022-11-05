@@ -1,11 +1,12 @@
 import {adminHandler} from './../middleware/admin';
-import {Request, Response} from 'express';
+import {Request, Response, Router} from 'express';
 import {RedisHttpController} from '../core/controllers/http';
+const internal_cache = require('../core/cache/internal');
 
 const express = require('express');
 
 // router
-const secret = express.Router();
+const secret: Router = express.Router();
 
 /**
  * Add a key/token to cache
@@ -14,16 +15,24 @@ const secret = express.Router();
  */
 const updateWhitelist = (request: Request, response: Response) => {
   try {
-    console.log('Whitelist Updated');
+    console.log('Whitelist Updated ', request.method);
     /// user auth infor
-    const body = request.body;
+    const body = request.body[0];
+
+    console.log({body});
+
     /// update internal white list store
     internal_cache.set(body.token, body);
 
-    console.log(internal_cache.getStats());
+    console.log(
+      '\x1b[36m%s\x1b[0m',
+      'ADD NEW TOKEN',
+      internal_cache.getStats()
+    );
 
     response.sendStatus(201);
   } catch (error) {
+    console.log(error);
     response.sendStatus(500);
   }
 };
@@ -34,15 +43,23 @@ const updateWhitelist = (request: Request, response: Response) => {
  */
 const removeFrmWhitelist = (request: Request, response: Response) => {
   try {
-    console.log('Whitelist Updated');
+    console.log('Whitelist Updated ', request.method);
     /// user auth infor
-    const body = request.body;
+    const body = request.body[0];
+
+    console.log({body});
     /// update internal white list store
     internal_cache.take(body.token);
 
-    console.log(internal_cache.getStats());
+    console.log(
+      '\x1b[32m%s\x1b[0m',
+      'REMOVE ONE TOKEN',
+      internal_cache.getStats()
+    );
     response.sendStatus(201);
   } catch (error) {
+    console.log(error);
+
     response.sendStatus(500);
   }
 };

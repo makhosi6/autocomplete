@@ -80,6 +80,7 @@ export async function analytics(request: Request) {
       x_ip: userIP(request),
       x_query: request.params.key || 'unknown',
       path: request.path,
+      x_origin: request.url,
       x_hostname: request.hostname || '',
       timestamp: new Date().getTime(),
       x_params: JSON.stringify(request.query),

@@ -7,13 +7,17 @@ import {rateLimitArgs} from './core/utils/harmony.config';
 import {analyticsHandler} from './middleware/analytics';
 import secret from './routes/secret';
 import api from './routes/api';
-const {rateLimitRedis} = require('@jwerre/rate-limit-redis');
+import {nextTick} from 'process';
+const {rateLimitRedis} = require('rate-limit-redis');
+
 const express = require('express');
 const cors = require('cors');
 const queue = require('./core/queue/index');
 const internal_cache = require('./core/cache/internal');
 const compression = require('compression');
 const logger = require('morgan');
+const path = require('path');
+const rfs = require('rotating-file-stream');
 
 /**
  * set DB client
@@ -53,7 +57,20 @@ const app: Application = express();
  *
  * Logger
  */
-app.use(logger('common'));
+// create a rotating write stream
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d', // rotate daily
+  path: path.join(__dirname, 'log'),
+});
+
+// setup the logger
+app.use((req, res, next) => {
+  queue.push(() =>
+    logger('combined', {stream: accessLogStream})(req, res, () => {})
+  );
+  next();
+});
+
 /**
  * Allow All Origins
  *
@@ -94,8 +111,8 @@ app.use(express.static(__dirname + '/static'));
 /**
  * Register routes
  */
-app.use(api);
-app.use(secret);
+app.all('/api/v1/*', api);
+app.all('/secret/*', secret);
 /**
  * Home routes
  */

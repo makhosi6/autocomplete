@@ -24,7 +24,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jwerre/rate-limit-redis": "^2.0.0",
     "@types/express-ws": "^3.0.1",
     "compression": "^1.7.4",
     "connect-timeout": "^1.9.0",
@@ -37,7 +36,9 @@
     "node-fetch": "^2.6.7",
     "pino": "^8.6.1",
     "queue": "^6.0.2",
+    "rate-limit-redis": "file:./packages/@jwerre/rate-limit-redis",
     "redis": "^4.3.1",
+    "rotating-file-stream": "^2.1.6",
     "uuid": "^8.3.2",
     "ws": "^8.5.0"
   },
