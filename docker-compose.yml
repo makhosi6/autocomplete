@@ -15,13 +15,13 @@ services:
     image: redislabs/redismod
     ports:
       - '6379:6379'
-    command: redis-server --bind web1 insight
+    # command: "redis-server --bind web1 insight"
 
   redis_auth:
       image: redislabs/redismod
       ports:
         - "6380:6379"
-      command: redis-server --bind web1 insight
+      # command: "redis-server --bind web1 insight"
 # node service/app
   web1:
     restart: on-failure
