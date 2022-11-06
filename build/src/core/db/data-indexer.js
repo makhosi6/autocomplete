@@ -68,7 +68,7 @@ function feedValues(category) {
                 num_x++;
                 if (word === '')
                     return;
-                yield client.json.set(`redis:words:${num_x}`, '$', {
+                yield client.json.set(`redis:words:${word}`, '$', {
                     word,
                     // key: word,
                     // uid: uniqueId(word),

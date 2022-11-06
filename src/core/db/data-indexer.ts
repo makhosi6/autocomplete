@@ -70,7 +70,7 @@ export async function feedValues(category: string) {
 
       if (word === '') return;
 
-      await client.json.set(`redis:words:${num_x}`, '$', {
+      await client.json.set(`redis:words:${word}`, '$', {
         word,
         // key: word,
         // uid: uniqueId(word),

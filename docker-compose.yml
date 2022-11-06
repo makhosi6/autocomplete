@@ -1,19 +1,26 @@
 version: '3.9'
 services:
 # redis GUI tool
-  # insight:
-  #   image: redislabs/redisinsight
-  #   ports:
-  #     - "8001:8001"
-  #   volumes: []
-  #   restart: on-failure
-  #   depends_on:
-  #     - redis
+  insight:
+    image: redislabs/redisinsight
+    ports:
+      - "8001:8001"
+    volumes: []
+    restart: on-failure
+    depends_on:
+      - redis_words
+      - redis_auth
 # redis db
-  redis:
+  redis_words:
     image: redislabs/redismod
     ports:
       - '6379:6379'
+  
+  redis_auth:
+      image: redislabs/redismod
+      ports:
+        - "6380:6379"
+      restart: on-failure
 # node service/app
   web1:
     restart: on-failure

@@ -54,7 +54,6 @@ const accessLogStream = rfs.createStream('access.log', {
 // setup the logger
 app.use((req, res, next) => {
     queue.push(() => logger('combined', { stream: accessLogStream })(req, res, () => { }));
-    console.log(new Date(), 'NAD NEXXXXTTT');
     next();
 });
 /**
@@ -66,6 +65,7 @@ app.use(cors());
  * to return json data type
  */
 app.use(express.json());
+app.disable('x-powered-by');
 /**
  * use trust proxy if behind load balancer
  */
