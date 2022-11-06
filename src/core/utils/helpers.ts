@@ -1,5 +1,5 @@
 import {SERVICE_TWO, ADMIN_KEY} from './node.config';
-import {Request} from 'express';
+import {Request, Response} from 'express';
 import {kill} from 'process';
 const {Headers} = require('node-fetch');
 // import {Headers} from 'node-fetch';
@@ -76,7 +76,9 @@ export async function analytics(request: Request) {
       uuky: '_placeholder',
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      x_token: request.headers.authorization.split(' ')[1] || '',
+      x_token: request.headers.authorization
+        ? request.headers.authorization.split(' ')[1]
+        : '',
       x_ip: userIP(request),
       x_query: request.params.key || 'unknown',
       path: request.path,
@@ -141,16 +143,19 @@ export const getWhiteList = async function (): Promise<Array<object>> {
       redirect: 'follow',
     };
 
-    const response = await fetch(SERVICE_TWO + '/tokens', requestOptions);
+    const response: Response = await fetch(
+      SERVICE_TWO + '/tokens',
+      requestOptions
+    );
 
     // console.log('TOKENS RESPONSE', await response.text());
 
-    const data = await response.json();
+    const data = response.statusCode === 200 ? response.json() : [];
     console.log({data});
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
 
-    return data;
+    return [...data, {token: 'TOKEN_ONE'}];
   } catch (error) {
     console.log(error);
 

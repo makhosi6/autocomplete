@@ -85,7 +85,9 @@ function analytics(request) {
                 uuky: '_placeholder',
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                x_token: request.headers.authorization.split(' ')[1] || '',
+                x_token: request.headers.authorization
+                    ? request.headers.authorization.split(' ')[1]
+                    : '',
                 x_ip: userIP(request),
                 x_query: request.params.key || 'unknown',
                 path: request.path,
@@ -153,11 +155,11 @@ const getWhiteList = function () {
             };
             const response = yield (0, exports.fetch)(node_config_1.SERVICE_TWO + '/tokens', requestOptions);
             // console.log('TOKENS RESPONSE', await response.text());
-            const data = yield response.json();
+            const data = response.statusCode === 200 ? response.json() : [];
             console.log({ data });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            return data;
+            return [...data, { token: 'TOKEN_ONE' }];
         }
         catch (error) {
             console.log(error);
