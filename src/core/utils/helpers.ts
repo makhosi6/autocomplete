@@ -72,6 +72,9 @@ export async function analytics(request: Request) {
     //auth headers
     const myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ' + ADMIN_KEY);
+
+    console.log({auth: request.headers.authorization});
+
     const data = {
       uuky: '_placeholder',
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -148,7 +151,7 @@ export const getWhiteList = async function (): Promise<Array<object>> {
       requestOptions
     );
 
-    // console.log('TOKENS RESPONSE', await response.text());
+    console.log('TOKENS RESPONSE', await response.statusCode);
 
     const data = response.statusCode === 200 ? response.json() : [];
     console.log({data});
@@ -159,7 +162,7 @@ export const getWhiteList = async function (): Promise<Array<object>> {
   } catch (error) {
     console.log(error);
 
-    return [];
+    return [{token: 'TOKEN_TWO'}];
   }
 };
 /**

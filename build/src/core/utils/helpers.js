@@ -81,6 +81,7 @@ function analytics(request) {
             //auth headers
             const myHeaders = new Headers();
             myHeaders.append('Authorization', 'Bearer ' + node_config_1.ADMIN_KEY);
+            console.log({ auth: request.headers.authorization });
             const data = {
                 uuky: '_placeholder',
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -154,7 +155,7 @@ const getWhiteList = function () {
                 redirect: 'follow',
             };
             const response = yield (0, exports.fetch)(node_config_1.SERVICE_TWO + '/tokens', requestOptions);
-            // console.log('TOKENS RESPONSE', await response.text());
+            console.log('TOKENS RESPONSE', yield response.statusCode);
             const data = response.statusCode === 200 ? response.json() : [];
             console.log({ data });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -163,7 +164,7 @@ const getWhiteList = function () {
         }
         catch (error) {
             console.log(error);
-            return [];
+            return [{ token: 'TOKEN_TWO' }];
         }
     });
 };
