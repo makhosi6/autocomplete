@@ -65,6 +65,9 @@ app.use(cors());
  * to return json data type
  */
 app.use(express.json());
+/**
+ * remove express meta data
+ */
 app.disable('x-powered-by');
 /**
  * use trust proxy if behind load balancer
@@ -130,3 +133,6 @@ process.once('exit', helpers_1.killed);
  *  If and when the app dies
  */
 process.once('disconnect', helpers_1.killed);
+/// CERTIFICATES
+// https://www.namecheap.com/support/knowledgebase/article.aspx/9705/33/installing-an-ssl-certificate-on-nodejs/
+// https://javascript.plainenglish.io/generate-ssl-certificate-using-node-js-for-web-apps-73d452ad5898

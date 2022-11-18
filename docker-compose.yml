@@ -6,35 +6,26 @@ services:
     ports:
       - "8001:8001"
     volumes: []
-    restart: unless-stopped
+    restart: on-failure
     depends_on:
       - redis_words
       - redis_auth
 # redis db
   redis_words:
-    restart: unless-stopped
     image: redislabs/redismod
     ports:
       - '6379:6379'
-    # command: "redis-cli --bind web1 insight"
+    # command: "redis-server --bind web1 insight"
 
   redis_auth:
-      restart: unless-stopped
       image: redislabs/redismod
       ports:
         - "6380:6379"
-      # command: "redis-cli --bind web1 insight"
+      # command: "redis-server --bind web1 insight"
 # node service/app
   web1:
-    restart: unless-stopped
+    restart: on-failure
     build: ./
     ports:
       - '3001:3001'
-# reverse proxy as a loadbalancer
-  nginx:
-    restart: unless-stopped
-    build: ./nginx
-    ports:
-      - '80:80'
-    depends_on:
-      - web1
+
