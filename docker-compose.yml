@@ -28,4 +28,11 @@ services:
     build: ./
     ports:
       - '3001:3001'
-
+# reverse proxy as a loadbalancer
+  nginx:
+    build: ./nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - web1

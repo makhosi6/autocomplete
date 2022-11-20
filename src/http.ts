@@ -85,7 +85,7 @@ app.use(express.json());
  */
 app.disable('x-powered-by');
 /**
- * use trust proxy if behind load balancer
+ * use trust proxy if behind load balancer/reverse proxy
  */
 app.enable('trust proxy');
 
@@ -110,7 +110,12 @@ app.use(compression());
 /**
  * Static files
  */
-app.use(express.static(__dirname + '/static'));
+console.log(__dirname);
+
+app.use('/static', express.static(path.join(__dirname, '/static')));
+
+// hidden security files
+app.use('/', express.static(path.join(__dirname, '/security')));
 /**
  * Register routes
  */
@@ -120,10 +125,10 @@ app.all('/secret/*', secret);
  * Home routes
  */
 app.get('/', (req: Request, res: Response) => {
-  res.redirect('/docs/get-started');
+  res.redirect('https://byteestudio.com/');
 });
 app.get('/home', (req: Request, res: Response) => {
-  res.redirect('/docs/get-started');
+  res.redirect('https://byteestudio.com/');
 });
 /**
  *  App and server

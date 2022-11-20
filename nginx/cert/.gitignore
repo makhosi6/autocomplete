@@ -1,0 +1,7 @@
+# hide prod certificates
+*.prod.pem
+*.prod.key
+ca_bundle.crt
+certificate.crt
+certificate.chained.crt
+private.key

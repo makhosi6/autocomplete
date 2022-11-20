@@ -10,6 +10,6 @@ COPY . .
 
 # ENV PORT=3001
 
-EXPOSE 3001
+# EXPOSE 3001
 
 CMD [ "node", "build/src/http.js" ]

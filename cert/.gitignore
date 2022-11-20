@@ -1,3 +1,0 @@
-# hide prod certificates
-*.prod.pem
-*.prod.key
