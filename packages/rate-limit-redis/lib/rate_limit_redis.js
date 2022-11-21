@@ -49,8 +49,8 @@ Rate limit middleware that used redis cache
 
 */
 class RateLimitRedis {
-	constructor(options) {
-		this.redisClient;
+  constructor(options) {
+    this.redisClient;
     (this.timeframe = options.timeframe || 60),
       (this.limit = options.limit || 100),
       (this.namespace = options.namespace || RateLimitRedis.DEFAULT_NAMESPACE),
@@ -66,7 +66,7 @@ class RateLimitRedis {
   }
 
   getKey(ip, append) {
-		let ns = ip || 'Invalid IP';
+    let ns = ip || 'Invalid IP';
 
     if (this.namespace && this.namespace.length) {
       ns = `${this.namespace}:${ip}`;
@@ -84,8 +84,8 @@ class RateLimitRedis {
       options.constructor &&
       options.constructor.name === 'Commander RedisClient'
     ) {
-			this.redisClient = options;
-		} else {
+      this.redisClient = options;
+    } else {
       this.redisClient = createClient(options);
       this.redisClient.on('error', console.error);
     }
@@ -112,7 +112,7 @@ class RateLimitRedis {
     const res = await this.redisClient.get(key);
 
     return JSON.parse(res);
-	}
+  }
 
   async incrementRequestCount(key) {
     if (!key) {
@@ -121,7 +121,7 @@ class RateLimitRedis {
 
     const res = await this.redisClient.incr(key);
 
-		if (!res) {
+    if (!res) {
       return this.setNewRequestCount(key);
     }
 
@@ -169,71 +169,75 @@ class RateLimitRedis {
     let requestCount,
       limit = this.limit,
       timeframe = this.timeframe,
-      key = this.getKey(request.headers['X-Forwarded-For'] || request.ip),
+      key = this.getKey(
+        request.headers['X-Real-IP'] ||
+          request.headers['X-Forwarded-For'] ||
+          request.ip
+      ),
       response = {
         status: 200,
       };
 
     // ignore whitelisted ips
     if (Array.isArray(this.whitelist) && this.whitelist.length) {
-			if (this.whitelist.includes(userIP(request))) {
+      if (this.whitelist.includes(userIP(request))) {
         // delete response.limit;
-				return {
-					...response,
-					...{key, ip: userIP(request)},
-				};
+        return {
+          ...response,
+          ...{key, ip: userIP(request)},
+        };
       }
     }
 
     // custom routes
     if (Array.isArray(this.customRoutes) && this.customRoutes.length) {
-			const custom = this.customRoutes.find(route => {
-				if (!Object.prototype.hasOwnProperty.call(route, 'method')) {
-					route.method = 'get';
-				}
+      const custom = this.customRoutes.find(route => {
+        if (!Object.prototype.hasOwnProperty.call(route, 'method')) {
+          route.method = 'get';
+        }
 
-				let samePath,
-					sameMethod,
-					reqPath = request.url || request.originalUrl;
+        let samePath,
+          sameMethod,
+          reqPath = request.url || request.originalUrl;
 
-				if (reqPath && reqPath.length) {
-					if (reqPath.endsWith('/')) {
-						reqPath = reqPath.slice(0, -1);
-					}
+        if (reqPath && reqPath.length) {
+          if (reqPath.endsWith('/')) {
+            reqPath = reqPath.slice(0, -1);
+          }
 
-					// if ( route.path.endsWith('/') ) {
-					// 	route.path = route.path.slice(0, -1);
-					// }
+          // if ( route.path.endsWith('/') ) {
+          // 	route.path = route.path.slice(0, -1);
+          // }
 
-					if (
-						Object.prototype.toString.call(route.path) === '[object RegExp]'
-					) {
-						samePath = route.path.test(reqPath);
-					} else {
-						samePath = route.path === reqPath;
-					}
-				}
+          if (
+            Object.prototype.toString.call(route.path) === '[object RegExp]'
+          ) {
+            samePath = route.path.test(reqPath);
+          } else {
+            samePath = route.path === reqPath;
+          }
+        }
 
-				sameMethod =
+        sameMethod =
           Object.prototype.toString.call(route.method) === '[object String]' &&
           Object.prototype.toString.call(request.method) ===
             '[object String]' &&
           route.method.toLowerCase() === request.method.toLowerCase();
 
-				return samePath && sameMethod;
-			});
+        return samePath && sameMethod;
+      });
 
       if (custom) {
         if (custom.ignore) {
-					return {
+          return {
             ...response,
-						...{key, ip: userIP(request)},
-					};
+            ...{key, ip: userIP(request)},
+          };
         }
 
         const append = `${custom.method.toLowerCase()}:${custom.path
-					.toString()
-					.toLowerCase()}`;
+          .toString()
+          .toLowerCase()}`;
         key = this.getKey(userIP(request), append);
 
         if (custom.limit != null) {
@@ -243,7 +247,7 @@ class RateLimitRedis {
         if (custom.timeframe != null) {
           timeframe = custom.timeframe;
         }
-			}
+      }
     }
 
     // check that redis client exists
@@ -257,13 +261,13 @@ class RateLimitRedis {
     requestCount = await this.getRequestCount(key);
 
     if (!requestCount) {
-			await this.setNewRequestCount(key, timeframe);
+      await this.setNewRequestCount(key, timeframe);
 
       response.remaining = limit - 1;
-			return {
-				...response,
-				...{key, ip: userIP(request)},
-			};
+      return {
+        ...response,
+        ...{key, ip: userIP(request)},
+      };
     }
 
     // add current request to the total count
@@ -273,7 +277,7 @@ class RateLimitRedis {
 
     // if number of requests made is greater than or equal rate limit return 429
     if (requestCount >= limit) {
-			const ttl = await this.getTimeLeft(key, timeframe);
+      const ttl = await this.getTimeLeft(key, timeframe);
 
       // If ttl is -1 (has no expire), -2 (does not exist)
       // or 0 (expired) set a new key.
@@ -282,17 +286,17 @@ class RateLimitRedis {
 
         response.remaining = limit - 1;
         return {
-					...response,
-					...{key, ip: userIP(request)},
-				};
+          ...response,
+          ...{key, ip: userIP(request)},
+        };
       } else {
         response.retry = Math.ceil(ttl / 1000);
         response.error = new Error('Too Many Requests');
         response.status = 429;
         return {
-					...response,
-					...{key, ip: userIP(request)},
-				};
+          ...response,
+          ...{key, ip: userIP(request)},
+        };
       }
     }
 
@@ -300,9 +304,9 @@ class RateLimitRedis {
     await this.incrementRequestCount(key);
 
     return Promise.resolve({
-			...response,
-			...{key, ip: userIP(request)},
-		});
+      ...response,
+      ...{key, ip: userIP(request)},
+    });
   }
 
   /**
@@ -312,7 +316,7 @@ class RateLimitRedis {
 	@async
 	@return {Promise}
 	*/
-	connect() {
+  connect() {
     if (!this.redisClient) {
       throw new Error('Unable to connect to redis');
     }
@@ -336,13 +340,13 @@ class RateLimitRedis {
 }
 
 function userIP(req) {
-	return (
-		req.headers['X-Client-IP'] ||
+  return (
+    req.headers['X-Real-IP'] || //( (Nginx proxy/FastCGI)
     req.headers['X-Forwarded-For'] || // X-Forwarded-For (Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
+    req.headers['X-Client-IP'] ||
     req.headers['CF-Connecting-IP'] || //( (Cloudflare)
     req.headers['Fastly-Client-Ip'] || //( (Fastly CDN and Firebase hosting header when forwared to a cloud function)
     req.headers['True-Client-Ip'] || //( (Akamai and Cloudflare)
-    req.headers['X-Real-IP'] || //( (Nginx proxy/FastCGI)
     req.headers['X-Cluster-Client-IP'] || //( (Rackspace LB, Riverbed Stingray)
     req.headers['X-Forwarded'] ||
     req.headers['Forwarded-For'] ||
@@ -357,7 +361,7 @@ function userIP(req) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     req.info.remoteAddress
-	);
+  );
 }
 
 module.exports = RateLimitRedis;
