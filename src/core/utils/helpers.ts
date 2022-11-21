@@ -68,6 +68,7 @@ export async function analytics(request: Request) {
   try {
     // console.log(request);
     console.log(userIP(request));
+    console.log(request.ip);
 
     //auth headers
     const myHeaders = new Headers();
@@ -108,6 +109,9 @@ export async function analytics(request: Request) {
 }
 
 export function userIP(req: Request) {
+  const ip = req.ip;
+
+  if (ip) return ip;
   return (
     req.headers['X-Real-IP'] || //( (Nginx proxy/FastCGI)
     req.headers['X-Forwarded-For'] || // X-Forwarded-For (Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)

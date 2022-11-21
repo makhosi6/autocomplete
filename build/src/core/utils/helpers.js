@@ -78,6 +78,7 @@ function analytics(request) {
         try {
             // console.log(request);
             console.log(userIP(request));
+            console.log(request.ip);
             //auth headers
             const myHeaders = new Headers();
             myHeaders.append('Authorization', 'Bearer ' + node_config_1.ADMIN_KEY);
@@ -116,6 +117,9 @@ function analytics(request) {
 exports.analytics = analytics;
 function userIP(req) {
     var _a, _b, _c;
+    const ip = req.ip;
+    if (ip)
+        return ip;
     return (req.headers['X-Real-IP'] || //( (Nginx proxy/FastCGI)
         req.headers['X-Forwarded-For'] || // X-Forwarded-For (Header may return multiple IP addresses in the format: "client IP, proxy 1 IP, proxy 2 IP", so we take the the first one.)
         req.headers['X-Client-IP'] ||
