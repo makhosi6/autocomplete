@@ -95,6 +95,8 @@ console.log(__dirname);
 app.use('/static', express.static(path.join(__dirname, '/static')));
 // hidden security files
 app.use('/', express.static(path.join(__dirname, '/security')));
+// serve HTML
+app.use('/example', express.static(path.join(__dirname, '../examples/')));
 /**
  * Register routes
  */

@@ -19,7 +19,7 @@
       });
 
       var myHeaders = new Headers();
-      myHeaders.append('Authorization', 'Bearer THE_ONE');
+      myHeaders.append('Authorization', 'Bearer TOKEN_ONE');
 
       var requestOptions = {
         method: 'GET',
@@ -28,7 +28,7 @@
       };
 
       let response = await fetch(
-        `http://localhost:3001/api/v1/search/autocomplete/${text}?limit=5&sort=DESC`,
+        `https://json.byteestudio.com/api/v1/search/autocomplete/${text}?limit=5&sort=DESC`,
         requestOptions
       );
       let results = await response.json();
