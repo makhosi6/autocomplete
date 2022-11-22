@@ -31,7 +31,7 @@ function search(query, limit = 5, sort) {
             : (0, helpers_1.hasSymbol)(query) // if has special characters
                 ? `${query}*`
                 : query.length < 2
-                    ? `${query}|~${query}|${query}*|"${query}"` // if has one letter
+                    ? `${query}|~${query}|${query}*|'${query}'` // if has one letter
                     : `${query}|${query}*`; // else
         console.log({ command });
         /**
