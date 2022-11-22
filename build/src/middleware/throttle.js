@@ -31,7 +31,7 @@ const throttle = (request, response, next) => __awaiter(void 0, void 0, void 0, 
             .process(request)
             .then((result = {}) => {
             console.log({ result });
-            cache.set(result.ip, result, result.retry || node_config_1.TTL);
+            cache.set((0, helpers_1.userIP)(request), result, result.retry || node_config_1.TTL);
         })
             .catch(console.log);
     });

@@ -157,7 +157,7 @@ export const getWhiteList = async function (): Promise<Array<object>> {
 
     console.log('TOKENS RESPONSE', await response.statusCode);
 
-    const data = response.statusCode === 200 ? response.json() : [];
+    const data = (await response.json()) || [];
     console.log({data});
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

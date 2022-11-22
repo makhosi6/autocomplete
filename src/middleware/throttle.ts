@@ -27,7 +27,7 @@ export const throttle = async (
       .then((result: any = {}) => {
         console.log({result});
 
-        cache.set(result.ip, result, result.retry || TTL);
+        cache.set(userIP(request), result, result.retry || TTL);
       })
       .catch(console.log);
   });

@@ -160,7 +160,7 @@ const getWhiteList = function () {
             };
             const response = yield (0, exports.fetch)(node_config_1.SERVICE_TWO + '/tokens', requestOptions);
             console.log('TOKENS RESPONSE', yield response.statusCode);
-            const data = response.statusCode === 200 ? response.json() : [];
+            const data = (yield response.json()) || [];
             console.log({ data });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
