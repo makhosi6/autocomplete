@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.feedValues = exports.preBoot = void 0;
 /* eslint-disable node/no-extraneous-import */
 const commands_1 = require("@redis/search/dist/commands");
+require("../utils/polyfill");
+const helpers_1 = require("../utils/helpers");
 function preBoot() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -39,7 +41,7 @@ function preBoot() {
             else {
                 console.log('From preBoot');
                 // Something went wrong, perhaps RediSearch isn't installed...
-                console.error(e);
+                console.log(e);
             }
         }
     });
@@ -68,12 +70,13 @@ function feedValues(category) {
                 num_x++;
                 if (word === '')
                     return;
-                yield client.json.set(`redis:words:${word}`, '$', {
+                yield client.json.set(`redis:words:${word.replaceAll(' ', '')}`, '$', {
                     word,
-                    // key: word,
-                    // uid: uniqueId(word),
+                    // key: word.replaceAll(' ', ''),
+                    uid: (0, helpers_1.uniqueId)(word),
                 });
             }));
+            console.log({ num_x });
         }
         catch (error) {
             console.log('From feed values');

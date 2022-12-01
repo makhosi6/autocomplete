@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const maintance_1 = require("./middleware/maintance");
 // import {WebSocket} from 'ws';
 const client_1 = require("./core/db/client");
 const node_config_1 = require("./core/utils/node.config");
@@ -9,6 +10,7 @@ const analytics_1 = require("./middleware/analytics");
 const secret_1 = require("./routes/secret");
 const api_1 = require("./routes/api");
 const { rateLimitRedis } = require('rate-limit-redis');
+require("./core/utils/polyfill");
 const express = require('express');
 const cors = require('cors');
 const queue = require('./core/queue/index');
@@ -17,6 +19,7 @@ const compression = require('compression');
 const logger = require('morgan');
 const path = require('path');
 const rfs = require('rotating-file-stream');
+console.log(__dirname);
 /**
  * set DB client
  *
@@ -91,17 +94,18 @@ app.use(compression());
 /**
  * Static files
  */
-console.log(__dirname);
 app.use('/static', express.static(path.join(__dirname, '/static')));
 // hidden security files
 app.use('/', express.static(path.join(__dirname, '/security')));
-// serve HTML
-app.use('/example', express.static(path.join(__dirname, '../examples/')));
 /**
  * Register routes
  */
 app.all('/api/v1/*', api_1.default);
 app.all('/secret/*', secret_1.default);
+/**
+ * Auth maintenance token && Lock to certain IP addr
+ */
+app.all('/api/v1/*', maintance_1.filterLocalIPs);
 /**
  * Home routes
  */
@@ -110,6 +114,13 @@ app.get('/', (req, res) => {
 });
 app.get('/home', (req, res) => {
     res.redirect('https://byteestudio.com/');
+});
+// examples
+app.get('/examples/http', (req, res) => {
+    res.sendFile('index.html', { root: '/app/examples/http' });
+});
+app.get('/examples/ws', (req, res) => {
+    res.sendFile('index.html', { root: '/app/examples/ws' });
 });
 /**
  *  App and server
@@ -120,7 +131,7 @@ const server = app.listen(node_config_1.PORT, () => console.log('\x1b[46m%s\x1b[
  * @param socket
  */
 const onConnEv = (socket) => {
-    console.log('Connections  => ', server.connections, ' ', socket.remoteAddress, '', socket.localAddress);
+    console.log('Connections  => ', server.connections, ' ', socket.remoteAddress, ' ', socket.localAddress);
 };
 /**
  * App/Server initialized, Log just to confirm

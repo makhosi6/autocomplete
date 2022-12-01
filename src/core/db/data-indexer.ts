@@ -1,5 +1,6 @@
 /* eslint-disable node/no-extraneous-import */
 import {SchemaFieldTypes} from '@redis/search/dist/commands';
+import '../utils/polyfill';
 import {uniqueId} from '../utils/helpers';
 
 export async function preBoot() {
@@ -33,7 +34,7 @@ export async function preBoot() {
       console.log('From preBoot');
 
       // Something went wrong, perhaps RediSearch isn't installed...
-      console.error(e);
+      console.log(e);
     }
   }
 }
@@ -70,12 +71,13 @@ export async function feedValues(category: string) {
 
       if (word === '') return;
 
-      await client.json.set(`redis:words:${word}`, '$', {
+      await client.json.set(`redis:words:${word.replaceAll(' ', '')}`, '$', {
         word,
-        // key: word,
-        // uid: uniqueId(word),
+        // key: word.replaceAll(' ', ''),
+        uid: uniqueId(word),
       });
     });
+    console.log({num_x});
   } catch (error) {
     console.log('From feed values');
 

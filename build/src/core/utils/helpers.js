@@ -164,11 +164,11 @@ const getWhiteList = function () {
             console.log({ data });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            return [...data, { token: 'TOKEN_ONE' }];
+            return [...data, { token: 'TOKEN_TWO' }, { token: 'SECRET_TOKEN' }];
         }
         catch (error) {
             console.log(error);
-            return [{ token: 'TOKEN_TWO' }];
+            return [{ token: 'TOKEN_TWO' }, { token: 'SECRET_TOKEN' }];
         }
     });
 };

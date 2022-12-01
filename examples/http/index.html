@@ -19,7 +19,7 @@
       });
 
       var myHeaders = new Headers();
-      myHeaders.append('Authorization', 'Bearer TOKEN_ONE');
+      myHeaders.append('Authorization', 'Bearer SECRET_TOKEN');
 
       var requestOptions = {
         method: 'GET',
@@ -28,7 +28,7 @@
       };
 
       let response = await fetch(
-        `https://json.byteestudio.com/api/v1/search/autocomplete/${text}?limit=5&sort=DESC`,
+        `https://json.byteestudio.com/api/v1/autocomplete/${text}?limit=10`,
         requestOptions
       );
       let results = await response.json();
@@ -49,16 +49,13 @@
       background-color: rgb(245, 245, 245);
     }
 
-    div {
-      padding: 100px;
-    }
-
-    input {
-      height: 26px;
-    }
-
-    h4 {
-      padding-top: 30px;
+div{
+     min-width: 150px;
+      max-width: 300px;
+     min-height: 50vh;
+      max-height: 50vh;
+      margin: auto !important;
+      padding-top: 30vh;
     }
 
   </style>

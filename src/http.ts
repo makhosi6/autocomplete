@@ -1,14 +1,15 @@
+import {filterLocalIPs} from './middleware/maintance';
 import {Application, Request, Response} from 'express';
 // import {WebSocket} from 'ws';
 import {client} from './core/db/client';
 import {PORT} from './core/utils/node.config';
-import {getWhiteList, killed} from './core/utils/helpers';
-import {rateLimitArgs} from './core/utils/harmony.config';
+import {getWhiteList, killed, userIP} from './core/utils/helpers';
+import {rateLimitArgs, localIPaddrs} from './core/utils/harmony.config';
 import {analyticsHandler} from './middleware/analytics';
 import secret from './routes/secret';
 import api from './routes/api';
 const {rateLimitRedis} = require('rate-limit-redis');
-
+import './core/utils/polyfill';
 const express = require('express');
 const cors = require('cors');
 const queue = require('./core/queue/index');
@@ -18,6 +19,7 @@ const logger = require('morgan');
 const path = require('path');
 const rfs = require('rotating-file-stream');
 
+console.log(__dirname);
 /**
  * set DB client
  *
@@ -110,19 +112,21 @@ app.use(compression());
 /**
  * Static files
  */
-console.log(__dirname);
 
 app.use('/static', express.static(path.join(__dirname, '/static')));
 
 // hidden security files
 app.use('/', express.static(path.join(__dirname, '/security')));
-// serve HTML
-app.use('/example', express.static(path.join(__dirname, '../examples/')));
 /**
  * Register routes
  */
 app.all('/api/v1/*', api);
 app.all('/secret/*', secret);
+/**
+ * Auth maintenance token && Lock to certain IP addr
+ */
+
+app.all('/api/v1/*', filterLocalIPs);
 /**
  * Home routes
  */
@@ -131,6 +135,13 @@ app.get('/', (req: Request, res: Response) => {
 });
 app.get('/home', (req: Request, res: Response) => {
   res.redirect('https://byteestudio.com/');
+});
+// examples
+app.get('/examples/http', (req: Request, res: Response) => {
+  res.sendFile('index.html', {root: '/app/examples/http'});
+});
+app.get('/examples/ws', (req: Request, res: Response) => {
+  res.sendFile('index.html', {root: '/app/examples/ws'});
 });
 /**
  *  App and server
@@ -148,7 +159,7 @@ const onConnEv = (socket: any) => {
     server.connections,
     ' ',
     socket.remoteAddress,
-    '',
+    ' ',
     socket.localAddress
   );
 };
