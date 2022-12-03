@@ -1,34 +1,41 @@
 version: '3.9'
 services:
-# redis GUI tool
+  # redis GUI tool
   insight:
     image: redislabs/redisinsight
     ports:
-      - "8001:8001"
-    volumes: []
+      - '8001:8001'
+    volumes:
+      - /var/lib/docker/volumes/redisinsight/_data:/data
     restart: on-failure
     depends_on:
       - redis_words
       - redis_auth
-# redis db
+  # redis db
   redis_words:
     image: redislabs/redismod
     ports:
       - '6379:6379'
+    volumes:
+      - /var/lib/docker/volumes/redis_words/_data:/data
     # command: "redis-server --bind web1 insight"
 
   redis_auth:
-      image: redislabs/redismod
-      ports:
-        - "6380:6379"
-      # command: "redis-server --bind web1 insight"
-# node service/app
+    image: redislabs/redismod
+    ports:
+      - '6380:6379'
+    volumes:
+      - /var/lib/docker/volumes/redis_auth/_data:/data
+    # command: "redis-server --bind web1 insight"
+    # node service/app
   web1:
     restart: on-failure
     build: ./
     ports:
       - '3001:3001'
-# reverse proxy as a loadbalancer
+    volumes:
+      - /var/lib/docker/volumes/node_server/_data:/data
+  # reverse proxy as a loadbalancer
   nginx:
     build: ./nginx
     ports:
@@ -36,3 +43,5 @@ services:
       - '443:443'
     depends_on:
       - web1
+    volumes:
+      - /var/lib/docker/volumes/nginx/_data:/data

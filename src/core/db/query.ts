@@ -39,7 +39,7 @@ export async function search(q: string, limit = 5, sort: any): Promise<Object> {
     //   results: results.documents.map((x: any) => x.value.word).sortBy(query),
     // },
     !results.documents[0]
-      ? `🌈🌈🌈🔥🔥🔥 HAS ${results.documents.length} documents`
+      ? `🌈🌈🔥🔥 HAS ${results.documents.length} documents`
       : `🟩❎ HAS ${results.documents.length} documents`
   );
 
