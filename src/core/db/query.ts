@@ -1,36 +1,23 @@
 import {RedisClientType} from 'redis';
-import {hasSymbol, uniqueId} from '../utils/helpers';
+import {hasSymbol, redisEscape, uniqueId} from '../utils/helpers';
 import '../utils/polyfill';
+/**
+ *
+ * @param q query string
+ * @param limit - limit a number between 1 and 10
+ * @param sort 'DESC' or 'ASC
+ * @returns  {Promise<Object>}
+ */
+export async function search(q: string, limit = 5, sort: any): Promise<Object> {
+  /// prepare string for redis, remove or escape special characters
+  const query = redisEscape(q.trim());
 
-export async function search(query: string, limit = 5, sort: any) {
   ///set DB client
   const client = (global as any).client;
 
-  const asArr = query.split(' ');
-  ///
-  const isTwoLetterWord = asArr.length > 1;
-
-  //
-  if (isTwoLetterWord) {
-    asArr[asArr.length - 1] = '~' + asArr[asArr.length - 1];
-    console.log({asArr});
-  }
-
-  /**
-   * if it a ONE letter query
-   */
-
-  const command = isTwoLetterWord
-    ? asArr.join(' ') // if its a phrase(two words or more)
-    : hasSymbol(query) // if has special characters
-    ? `${query}*`
-    : query.length < 2
-    ? `${query}|${query}*|'${query}'` // if has one letter
-    : `${query}|${query}*`; // else
-
+  /// redis query command
+  const command = `${query}|${query}*|"${query}"`;
   console.log({command});
-  const cmd = `"${query}"` + '|' + query + '|' + query + '*|' + query;
-  console.log({cmd});
 
   const results = await client.ft.search('idx:words', `@word: ${command}`, {
     // SORTBY: {
@@ -40,7 +27,7 @@ export async function search(query: string, limit = 5, sort: any) {
     // limit
     LIMIT: {
       from: 0,
-      size: 30,
+      size: 20,
     },
   });
 
@@ -56,13 +43,22 @@ export async function search(query: string, limit = 5, sort: any) {
       : `🟩❎ HAS ${results.documents.length} documents`
   );
 
-  ///
+  /**
+   * re-arrange results by relevancy and limit to a given number
+   */
+  const output = results.documents
+    .map((doc: any) => doc.value.key)
+    .sortBy(query)
+    .slice(0, limit);
+  /**
+   * return data as an array and its length
+   */
   return {
-    total: results.documents.length,
+    total: output.length,
     /**
      *  https://github.com/padolsey/relevancy.js/
      */
-    data: results.documents.map((doc: any) => doc.value.word).sortBy(query),
+    data: sort.toUpperCase() === 'DESC' ? output.reverse() : output,
   };
   // const spellCheck = client.ft.spellcheck();
 }

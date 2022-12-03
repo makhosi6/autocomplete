@@ -21,5 +21,7 @@ Array.prototype.sortBy = function sortBy(pattern) {
     // use Sorter class from the relevancy package
     const sorter = require('relevancy').Sorter({}, this.valueOf());
     //sort by value
-    return sorter.sortBy(val);
+    const output = sorter.sortBy(val);
+    console.log({ output });
+    return output;
 };

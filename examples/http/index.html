@@ -28,7 +28,7 @@
       };
 
       let response = await fetch(
-        `https://json.byteestudio.com/api/v1/autocomplete/${text}?limit=10`,
+        `http://127.0.0.1:3001/api/v1/autocomplete/${text}?limit=10`,
         requestOptions
       );
       let results = await response.json();
@@ -39,7 +39,7 @@
       let listEl = document.querySelector('ol');
       listEl.innerHTML = '';
       results.data.map(i => {
-        listEl.innerHTML += `<li onclick="selectWord('${i.word}')" >${i.word}</li>`;
+        listEl.innerHTML += `<li onclick="selectWord('${i}')" >${i}</li>`;
       });
     }
 

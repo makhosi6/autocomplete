@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.killed = exports.fetch = exports.isAuth = exports.getWhiteList = exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
+exports.indices = exports.redisEscape = exports.killed = exports.fetch = exports.isAuth = exports.getWhiteList = exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
 const node_config_1 = require("./node.config");
 const { Headers } = require('node-fetch');
 // import {Headers} from 'node-fetch';
@@ -210,3 +210,73 @@ const killed = () => __awaiter(void 0, void 0, void 0, function* () {
     global.rateLimitRedis.disconnect();
 });
 exports.killed = killed;
+function redisEscape(value) {
+    const replacements = {
+        ',': '\\,',
+        '.': '\\.',
+        '<': '\\<',
+        '>': '\\>',
+        '{': '\\{',
+        '}': '\\}',
+        '[': '\\[',
+        ']': '\\]',
+        '"': '\\"',
+        "'": "\\'",
+        ':': '\\:',
+        ';': '\\;',
+        '!': '\\!',
+        '@': '\\@',
+        '#': '\\#',
+        $: '\\$',
+        '%': '\\%',
+        '^': '\\^',
+        '&': '\\&',
+        '*': '\\*',
+        '(': '\\(',
+        ')': '\\)',
+        '-': '\\-',
+        '+': '\\+',
+        '=': '\\=',
+        '~': '\\~',
+    };
+    const newValue = value.replace(/,|\.|<|>|\{|\}|\[|\]|"|'|:|;|!|@|#|\$|%|\^|&|\*|\(|\)|-|\+|=|~/g, x => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        return replacements[x];
+    });
+    return newValue;
+}
+exports.redisEscape = redisEscape;
+/**
+ *
+ */
+exports.indices = {
+    a: 2,
+    b: 3,
+    c: 4,
+    d: 5,
+    e: 6,
+    f: 7,
+    g: 8,
+    h: 9,
+    i: 10,
+    j: 11,
+    k: 12,
+    l: 13,
+    m: 14,
+    n: 15,
+    o: 16,
+    p: 17,
+    q: 18,
+    r: 19,
+    s: 20,
+    t: 21,
+    u: 22,
+    v: 23,
+    w: 24,
+    x: 25,
+    y: 26,
+    z: 27,
+    0: 28,
+    words_lowercase: 29,
+};

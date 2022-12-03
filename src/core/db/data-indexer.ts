@@ -1,7 +1,8 @@
+import {indices} from './../utils/helpers';
 /* eslint-disable node/no-extraneous-import */
 import {SchemaFieldTypes} from '@redis/search/dist/commands';
 import '../utils/polyfill';
-import {uniqueId} from '../utils/helpers';
+import {redisEscape, uniqueId} from '../utils/helpers';
 
 export async function preBoot() {
   try {
@@ -19,7 +20,7 @@ export async function preBoot() {
           SORTABLE: 'UNF',
           AS: 'word',
         },
-        // '$.key': {type: SchemaFieldTypes.TAG, AS: 'key'},
+        '$.key': {type: SchemaFieldTypes.TEXT, AS: 'key'},
         // '$.uid': {type: SchemaFieldTypes.TEXT, AS: 'uid'},
       },
       {
@@ -60,7 +61,12 @@ export async function feedValues(category: string) {
      */
     const records: Array<string> = allFileContents
       .split(/\r?\n/)
-      .map((item: string): string => item);
+      .map((item: string): string => item)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      .sort((a, b) => {
+        return a - b;
+      });
 
     /**
      * feed data into redis
@@ -70,14 +76,14 @@ export async function feedValues(category: string) {
       num_x++;
 
       if (word === '') return;
-
-      await client.json.set(`redis:words:${word.replaceAll(' ', '')}`, '$', {
-        word,
-        // key: word.replaceAll(' ', ''),
-        uid: uniqueId(word),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
+      await client.json.set(`redis:words:${indices[category]}${num_x}`, '$', {
+        word: redisEscape(word),
+        key: word,
+        // uid: uniqueId(word),
       });
     });
-    console.log({num_x});
   } catch (error) {
     console.log('From feed values');
 

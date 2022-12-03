@@ -10,10 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.feedValues = exports.preBoot = void 0;
+const helpers_1 = require("./../utils/helpers");
 /* eslint-disable node/no-extraneous-import */
 const commands_1 = require("@redis/search/dist/commands");
 require("../utils/polyfill");
-const helpers_1 = require("../utils/helpers");
+const helpers_2 = require("../utils/helpers");
 function preBoot() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -27,7 +28,7 @@ function preBoot() {
                     SORTABLE: 'UNF',
                     AS: 'word',
                 },
-                // '$.key': {type: SchemaFieldTypes.TAG, AS: 'key'},
+                '$.key': { type: commands_1.SchemaFieldTypes.TEXT, AS: 'key' },
                 // '$.uid': {type: SchemaFieldTypes.TEXT, AS: 'uid'},
             }, {
                 ON: 'JSON',
@@ -62,7 +63,12 @@ function feedValues(category) {
              */
             const records = allFileContents
                 .split(/\r?\n/)
-                .map((item) => item);
+                .map((item) => item)
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                //@ts-ignore
+                .sort((a, b) => {
+                return a - b;
+            });
             /**
              * feed data into redis
              */
@@ -70,13 +76,14 @@ function feedValues(category) {
                 num_x++;
                 if (word === '')
                     return;
-                yield client.json.set(`redis:words:${word.replaceAll(' ', '')}`, '$', {
-                    word,
-                    // key: word.replaceAll(' ', ''),
-                    uid: (0, helpers_1.uniqueId)(word),
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                //@ts-ignore
+                yield client.json.set(`redis:words:${helpers_1.indices[category]}${num_x}`, '$', {
+                    word: (0, helpers_2.redisEscape)(word),
+                    key: word,
+                    // uid: uniqueId(word),
                 });
             }));
-            console.log({ num_x });
         }
         catch (error) {
             console.log('From feed values');
