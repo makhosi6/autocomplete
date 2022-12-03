@@ -47,7 +47,7 @@ function search(q, limit = 5, sort) {
         //   results: results.documents.map((x: any) => x.value.word).sortBy(query),
         // },
         !results.documents[0]
-            ? `🌈🌈🌈🔥🔥🔥 HAS ${results.documents.length} documents`
+            ? `🌈🌈🔥🔥 HAS ${results.documents.length} documents`
             : `🟩❎ HAS ${results.documents.length} documents`);
         /**
          * re-arrange results by relevancy and limit to a given number
