@@ -1,5 +1,7 @@
 version: '3.9'
 services:
+
+
   # redis GUI tool
   insight:
     image: redislabs/redisinsight
@@ -7,10 +9,13 @@ services:
       - '8001:8001'
     volumes:
       - /var/lib/docker/volumes/redisinsight/_data:/data
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       - redis_words
       - redis_auth
+
+
+
   # redis db
   redis_words:
     image: redislabs/redismod
@@ -18,7 +23,11 @@ services:
       - '6379:6379'
     volumes:
       - /var/lib/docker/volumes/redis_words/_data:/data
+    restart: unless-stopped
+
     # command: "redis-server --bind web1 insight"
+
+
 
   redis_auth:
     image: redislabs/redismod
@@ -27,14 +36,20 @@ services:
     volumes:
       - /var/lib/docker/volumes/redis_auth/_data:/data
     # command: "redis-server --bind web1 insight"
+
+
+
     # node service/app
   web1:
-    restart: on-failure
     build: ./
     ports:
       - '3001:3001'
     volumes:
       - /var/lib/docker/volumes/node_server/_data:/data
+    restart: unless-stopped
+
+
+
   # reverse proxy as a loadbalancer
   nginx:
     build: ./nginx
@@ -45,3 +60,4 @@ services:
       - web1
     volumes:
       - /var/lib/docker/volumes/nginx/_data:/data
+    restart: unless-stopped
