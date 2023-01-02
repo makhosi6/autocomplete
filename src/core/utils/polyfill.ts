@@ -20,7 +20,7 @@ String.prototype.replaceAll = function replaceAll(pattern, replacement) {
  */
 Array.prototype.sortBy = function sortBy(pattern: string): Array<unknown> {
   /**
-   * sanitize param
+   * sanitize params
    */
   const val = pattern.replace(/^\s+|\s+$/, '');
 

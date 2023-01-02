@@ -78,7 +78,7 @@ export async function feedValues(category: string) {
       if (word === '') return;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
-      await client.json.set(`redis:words:${indices[category]}${num_x}`, '$', {
+      await client.json.set(`redis:words:${word}`, '$', {
         word: redisEscape(word),
         key: word,
         // uid: uniqueId(word),
