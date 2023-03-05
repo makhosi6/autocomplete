@@ -15,7 +15,7 @@ String.prototype.replaceAll = function replaceAll(pattern, replacement) {
  */
 Array.prototype.sortBy = function sortBy(pattern) {
     /**
-     * sanitize param
+     * sanitize params
      */
     const val = pattern.replace(/^\s+|\s+$/, '');
     // use Sorter class from the relevancy package

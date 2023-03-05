@@ -64,9 +64,7 @@ export async function feedValues(category: string) {
       .map((item: string): string => item)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
-      .sort((a, b) => {
-        return a - b;
-      });
+      .sort((a, b) => a - b);
 
     /**
      * feed data into redis
@@ -75,7 +73,7 @@ export async function feedValues(category: string) {
     records.map(async (word: string) => {
       num_x++;
 
-      if (word === '') return;
+      if (word === '' || !word) return;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       await client.json.set(`redis:words:${word}`, '$', {

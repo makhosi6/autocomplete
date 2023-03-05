@@ -10,11 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.feedValues = exports.preBoot = void 0;
-const helpers_1 = require("./../utils/helpers");
 /* eslint-disable node/no-extraneous-import */
 const commands_1 = require("@redis/search/dist/commands");
 require("../utils/polyfill");
-const helpers_2 = require("../utils/helpers");
+const helpers_1 = require("../utils/helpers");
 function preBoot() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -66,20 +65,18 @@ function feedValues(category) {
                 .map((item) => item)
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
-                .sort((a, b) => {
-                return a - b;
-            });
+                .sort((a, b) => a - b);
             /**
              * feed data into redis
              */
             records.map((word) => __awaiter(this, void 0, void 0, function* () {
                 num_x++;
-                if (word === '')
+                if (word === '' || !word)
                     return;
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
-                yield client.json.set(`redis:words:${helpers_1.indices[category]}${num_x}`, '$', {
-                    word: (0, helpers_2.redisEscape)(word),
+                yield client.json.set(`redis:words:${word}`, '$', {
+                    word: (0, helpers_1.redisEscape)(word),
                     key: word,
                     // uid: uniqueId(word),
                 });
