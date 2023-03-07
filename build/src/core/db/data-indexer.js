@@ -63,9 +63,13 @@ function feedValues(category) {
             const records = allFileContents
                 .split(/\r?\n/)
                 .map((item) => item)
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                .sort((a, b) => a - b);
+                .sort(function (a, b) {
+                const x = a.toUpperCase(), y = b.toUpperCase();
+                return x === y ? 0 : x < y ? 1 : -1;
+            });
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            // .sort((a, b) => a - b);
             /**
              * feed data into redis
              */

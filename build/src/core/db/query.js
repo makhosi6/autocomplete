@@ -26,19 +26,21 @@ function search(q, limit = 5, sort) {
         ///set DB client
         const client = global.client;
         /// redis query command
-        const command = `${query}|${query}*|"${query}"`;
+        const command = `"${query}"|${query}*`;
         console.log({ command });
-        const results = yield client.ft.search('idx:words', `@word: ${command}`, {
-            // SORTBY: {
-            //   BY: 'word',
-            //   DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
-            // },
-            // limit
-            LIMIT: {
-                from: 0,
-                size: 20,
-            },
-        });
+        const results = yield client.ft.search('idx:words', `@word:${command}`);
+        //{
+        // SORTBY: {
+        //   BY: 'word',
+        //   DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
+        // },
+        // limit
+        // LIMIT: {
+        //   from: 0,
+        //   size: 1000,
+        // },
+        //}
+        // );
         console.log(
         // {
         //   results: results.documents,

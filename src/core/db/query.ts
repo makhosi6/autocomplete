@@ -1,5 +1,4 @@
-import {RedisClientType} from 'redis';
-import {hasSymbol, redisEscape, uniqueId} from '../utils/helpers';
+import {redisEscape} from '../utils/helpers';
 import '../utils/polyfill';
 /**
  *
@@ -19,17 +18,19 @@ export async function search(q: string, limit = 5, sort: any): Promise<Object> {
   const command = `${query}|${query}*|"${query}"`;
   console.log({command});
 
-  const results = await client.ft.search('idx:words', `@word: ${command}`, {
-    // SORTBY: {
-    //   BY: 'word',
-    //   DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
-    // },
-    // limit
-    LIMIT: {
-      from: 0,
-      size: 20,
-    },
-  });
+  const results = await client.ft.search('idx:words', `@word:${command}`);
+  //{
+  // SORTBY: {
+  //   BY: 'word',
+  //   DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
+  // },
+  // limit
+  // LIMIT: {
+  //   from: 0,
+  //   size: 1000,
+  // },
+  //}
+  // );
 
   console.log(
     // {

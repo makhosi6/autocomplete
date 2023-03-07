@@ -56,7 +56,6 @@ services:
     restart: unless-stopped
 
 
-
   # reverse proxy as a loadbalancer
   nginx:
     build: ./nginx

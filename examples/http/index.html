@@ -28,7 +28,7 @@
       };
 
       let response = await fetch(
-        `https://json.byteestudio.com/api/v1/autocomplete/${text}?limit=10`,
+        `http://localhost:3001/api/v1/autocomplete/${text}?limit=10`,
         requestOptions
       );
       let results = await response.json();

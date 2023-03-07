@@ -1,3 +1,4 @@
+/* eslint-disable prefer-arrow-callback */
 import {indices} from './../utils/helpers';
 /* eslint-disable node/no-extraneous-import */
 import {SchemaFieldTypes} from '@redis/search/dist/commands';
@@ -62,9 +63,14 @@ export async function feedValues(category: string) {
     const records: Array<string> = allFileContents
       .split(/\r?\n/)
       .map((item: string): string => item)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      .sort((a, b) => a - b);
+      .sort(function (a: string, b: string) {
+        const x = a.toUpperCase(),
+          y = b.toUpperCase();
+        return x === y ? 0 : x < y ? 1 : -1;
+      });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    // .sort((a, b) => a - b);
 
     /**
      * feed data into redis
