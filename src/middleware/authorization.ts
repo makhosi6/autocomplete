@@ -22,19 +22,33 @@ export const authorization = async (
    * ddn't provide a key/token
    */
   if (!bearerHeader) {
-    return response.sendStatus(400);
+    return response.status(400).send({
+      status: 400,
+      message: 'Bad Request',
+    });
   } else {
     const bearerToken = bearerHeader.split(' ')[1];
     console.log({bearerToken});
     /// passed an empty token
-    if (!bearerToken) return response.sendStatus(400);
+    if (!bearerToken)
+      return response.status(400).send({
+        status: 400,
+        message: 'Bad Request',
+      });
 
     /**
      * If the token is valid
      */
-    if (await isAuth(bearerToken)) next();
-    /**
-     * else go through
-     */ else response.sendStatus(401);
+    if (await isAuth(bearerToken)) {
+      next();
+    } else {
+      /**
+       * else go through 401
+       */
+      response.status(401).send({
+        status: 401,
+        message: 'Unauthorized',
+      });
+    }
   }
 };

@@ -24,7 +24,7 @@ console.log(__dirname);
  * set DB client
  *
  */
-(0, client_1.client)().then(c => (global.client = c));
+(0, client_1.client)().then(_client => (global.client = _client));
 /**
  * on boot:
  * get whitelist and store it locally on the cache

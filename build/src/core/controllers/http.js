@@ -36,7 +36,10 @@ class RedisHttpController {
                  * bad request guard
                  */
                 if (!query) {
-                    response.send('BAD REQUEST');
+                    response.send({
+                        status: 400,
+                        message: 'Bad Request',
+                    });
                     return;
                 }
                 /**
@@ -72,7 +75,10 @@ class RedisHttpController {
             catch (error) {
                 console.log(error);
                 /// throw server error
-                response.sendStatus(500);
+                response.status(500).json({
+                    status: 500,
+                    message: 'Internal server error',
+                });
             }
         });
     }
@@ -88,11 +94,17 @@ class RedisHttpController {
                 const category = request.params.category;
                 //feed values to Redis
                 yield (0, data_indexer_1.feedValues)(decodeURIComponent(category));
-                response.status(200).send('Done');
+                response.status(200).send({
+                    status: 200,
+                    message: 'OK',
+                });
             }
             catch (error) {
                 console.log(error);
-                response.status(500).send('Done');
+                response.status(500).send({
+                    status: 500,
+                    message: 'Internal server error',
+                });
             }
         });
     }
@@ -103,10 +115,16 @@ class RedisHttpController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield (0, data_indexer_1.preBoot)();
-                response.status(200).send('Done');
+                response.status(200).send({
+                    status: 200,
+                    message: 'OK',
+                });
             }
             catch (error) {
-                response.sendStatus(500);
+                response.status(500).send({
+                    status: 500,
+                    message: 'Internal server error',
+                });
             }
         });
     }

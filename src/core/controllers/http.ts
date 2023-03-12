@@ -26,7 +26,10 @@ export class RedisHttpController {
        */
 
       if (!query) {
-        response.send('BAD REQUEST');
+        response.send({
+          status: 400,
+          message: 'Bad Request',
+        });
 
         return;
       }
@@ -65,7 +68,10 @@ export class RedisHttpController {
     } catch (error) {
       console.log(error);
       /// throw server error
-      response.sendStatus(500);
+      response.status(500).json({
+        status: 500,
+        message: 'Internal server error',
+      });
     }
   }
   /**
@@ -81,10 +87,16 @@ export class RedisHttpController {
       //feed values to Redis
       await feedValues(decodeURIComponent(category));
 
-      response.status(200).send('Done');
+      response.status(200).send({
+        status: 200,
+        message: 'OK',
+      });
     } catch (error) {
       console.log(error);
-      response.status(500).send('Done');
+      response.status(500).send({
+        status: 500,
+        message: 'Internal server error',
+      });
     }
   }
   /**
@@ -94,9 +106,15 @@ export class RedisHttpController {
     try {
       await preBoot();
 
-      response.status(200).send('Done');
+      response.status(200).send({
+        status: 200,
+        message: 'OK',
+      });
     } catch (error) {
-      response.sendStatus(500);
+      response.status(500).send({
+        status: 500,
+        message: 'Internal server error',
+      });
     }
   }
 }

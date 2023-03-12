@@ -21,7 +21,10 @@ api.use(authorization_1.authorization);
  */
 api.get('/api/v1/autocomplete/:key', (request, response) => response.statusCode !== 429
     ? http_1.RedisHttpController.getAll(request, response)
-    : response.sendStatus(response.statusCode));
+    : response.status(response.statusCode).send({
+        status: 429,
+        message: 'Too Many Requests',
+    }));
 /**
  * http search
  */

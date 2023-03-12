@@ -26,23 +26,35 @@ const authorization = (request, response, next) => __awaiter(void 0, void 0, voi
      * ddn't provide a key/token
      */
     if (!bearerHeader) {
-        return response.sendStatus(400);
+        return response.status(400).send({
+            status: 400,
+            message: 'Bad Request',
+        });
     }
     else {
         const bearerToken = bearerHeader.split(' ')[1];
         console.log({ bearerToken });
         /// passed an empty token
         if (!bearerToken)
-            return response.sendStatus(400);
+            return response.status(400).send({
+                status: 400,
+                message: 'Bad Request',
+            });
         /**
          * If the token is valid
          */
-        if (yield (0, helpers_1.isAuth)(bearerToken))
+        if (yield (0, helpers_1.isAuth)(bearerToken)) {
             next();
-        /**
-         * else go through
-         */ else
-            response.sendStatus(401);
+        }
+        else {
+            /**
+             * else go through 401
+             */
+            response.status(401).send({
+                status: 401,
+                message: 'Unauthorized',
+            });
+        }
     }
 });
 exports.authorization = authorization;

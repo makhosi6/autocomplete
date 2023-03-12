@@ -20,11 +20,17 @@ const updateWhitelist = (request, response) => {
         /// update internal white list store
         internal_cache.set(body.token, body);
         console.log('\x1b[36m%s\x1b[0m', 'ADD NEW TOKEN', internal_cache.getStats());
-        response.sendStatus(201);
+        response.status(201).send({
+            status: 200,
+            message: 'OK',
+        });
     }
     catch (error) {
         console.log(error);
-        response.sendStatus(500);
+        response.status(500).send({
+            status: 500,
+            message: 'Internal server error',
+        });
     }
 };
 /**
@@ -41,11 +47,17 @@ const removeFrmWhitelist = (request, response) => {
         /// update internal white list store
         internal_cache.take(body.token);
         console.log('\x1b[32m%s\x1b[0m', 'REMOVE ONE TOKEN', internal_cache.getStats());
-        response.sendStatus(201);
+        response.status(201).send({
+            status: 201,
+            message: 'OK',
+        });
     }
     catch (error) {
         console.log(error);
-        response.sendStatus(500);
+        response.status(500).send({
+            status: 500,
+            message: 'Internal server error',
+        });
     }
 };
 /**

@@ -34,7 +34,10 @@ const filterLocalIPs = (request, response, next) => {
         return;
     }
     else {
-        return response.send(401);
+        return response.status(401).send({
+            status: 401,
+            message: 'Unauthorized',
+        });
     }
     /**
      *  if the token or IP addr is not valid

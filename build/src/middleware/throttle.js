@@ -61,7 +61,10 @@ const throttle = (request, response, next) => __awaiter(void 0, void 0, void 0, 
      * user has exceeded the usage limit
      */
     if ((usageData === null || usageData === void 0 ? void 0 : usageData.status) === 429) {
-        response.sendStatus(usageData.status);
+        response.status(usageData.status).send({
+            status: 429,
+            message: 'Too Many Requests',
+        });
     }
     else {
         /// else go through

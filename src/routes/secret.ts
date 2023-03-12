@@ -30,10 +30,16 @@ const updateWhitelist = (request: Request, response: Response) => {
       internal_cache.getStats()
     );
 
-    response.sendStatus(201);
+    response.status(201).send({
+      status: 200,
+      message: 'OK',
+    });
   } catch (error) {
     console.log(error);
-    response.sendStatus(500);
+    response.status(500).send({
+      status: 500,
+      message: 'Internal server error',
+    });
   }
 };
 /**
@@ -56,11 +62,17 @@ const removeFrmWhitelist = (request: Request, response: Response) => {
       'REMOVE ONE TOKEN',
       internal_cache.getStats()
     );
-    response.sendStatus(201);
+    response.status(201).send({
+      status: 201,
+      message: 'OK',
+    });
   } catch (error) {
     console.log(error);
 
-    response.sendStatus(500);
+    response.status(500).send({
+      status: 500,
+      message: 'Internal server error',
+    });
   }
 };
 

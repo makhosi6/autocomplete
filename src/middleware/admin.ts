@@ -26,7 +26,10 @@ export const adminHandler = (
    * if the token is not included
    */
   if (!bearerHeader) {
-    response.sendStatus(403);
+    response.status(403).send({
+      status: 403,
+      message: 'Forbidden',
+    });
   } else {
     const bearerToken = bearerHeader.split(' ')[1];
     console.log({bearerToken});
@@ -34,7 +37,10 @@ export const adminHandler = (
       /**
        *  if the token is not valid
        */
-      response.sendStatus(403);
+      response.status(403).send({
+        status: 403,
+        message: 'Forbidden',
+      });
     } else {
       // if the token is valid
       next();

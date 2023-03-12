@@ -24,7 +24,7 @@ console.log(__dirname);
  * set DB client
  *
  */
-client().then(c => ((global as any).client = c));
+client().then(_client => ((global as any).client = _client));
 
 /**
  * on boot:

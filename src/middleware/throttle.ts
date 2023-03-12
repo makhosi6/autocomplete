@@ -68,7 +68,10 @@ export const throttle = async (
    * user has exceeded the usage limit
    */
   if (usageData?.status === 429) {
-    response.sendStatus(usageData.status);
+    response.status(usageData.status).send({
+      status: 429,
+      message: 'Too Many Requests',
+    });
   } else {
     /// else go through
     next();

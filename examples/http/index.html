@@ -1,77 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      const HOST = window.location.hostname;
+      const PORT = window.location.port;
+      const selectWord = arg =>
+        (document.querySelector('input#text').value = arg);
+      async function search() {
+        /// input value
+        let text = document.querySelector('input#text').value;
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script>
-    const selectWord = arg =>
-      (document.querySelector('input#text').value = arg);
-    async function search() {
-      /// input value
-      let text = document.querySelector('input#text').value;
+        console.log({
+          text,
+        });
 
-      console.log({
-        text
-      });
+        var myHeaders = new Headers();
+        myHeaders.append('Authorization', 'Bearer SECRET_TOKEN');
 
-      var myHeaders = new Headers();
-      myHeaders.append('Authorization', 'Bearer SECRET_TOKEN');
+        var requestOptions = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow',
+        };
 
-      var requestOptions = {
-        method: 'GET',
-        headers: myHeaders,
-        redirect: 'follow',
-      };
+        let response = await fetch(
+          `https://${
+            PORT ? HOST + ':' + PORT : HOST
+          }/api/v1/autocomplete/${text}?limit=10`,
+          requestOptions
+        );
+        let results = await response.json();
 
-      let response = await fetch(
-        `http://localhost:3001/api/v1/autocomplete/${text}?limit=10`,
-        requestOptions
-      );
-      let results = await response.json();
+        console.log({
+          results,
+        });
+        let listEl = document.querySelector('ol');
+        listEl.innerHTML = '';
+        results.data.map(i => {
+          listEl.innerHTML += `<li onclick="selectWord('${i}')" >${i}</li>`;
+        });
+      }
+    </script>
+    <style>
+      body {
+        background-color: rgb(245, 245, 245);
+      }
 
-      console.log({
-        results
-      });
-      let listEl = document.querySelector('ol');
-      listEl.innerHTML = '';
-      results.data.map(i => {
-        listEl.innerHTML += `<li onclick="selectWord('${i}')" >${i}</li>`;
-      });
-    }
+      div {
+        min-width: 150px;
+        max-width: 300px;
+        min-height: 50vh;
+        max-height: 50vh;
+        margin: auto !important;
+        padding-top: 30vh;
+      }
+    </style>
+    <title>Autocomplete - http</title>
+  </head>
 
-  </script>
-  <style>
-    body {
-      background-color: rgb(245, 245, 245);
-    }
-
-div{
-     min-width: 150px;
-      max-width: 300px;
-     min-height: 50vh;
-      max-height: 50vh;
-      margin: auto !important;
-      padding-top: 30vh;
-    }
-
-  </style>
-  <title>Autocomplete - http</title>
-</head>
-
-<body>
-  <div>
-    <h3>Testing the Autocomplete API</h3>
-    <form action="#">
-      <label for="autocomplete api">Enter text</label>
-      <input type="text" name="text" id="text" oninput="search()" />
-    </form>
-    <h4><u> Suggestions </u></h4>
-    <ol></ol>
-  </div>
-</body>
-
+  <body>
+    <div>
+      <h3>Testing the Autocomplete API</h3>
+      <form action="#">
+        <label for="autocomplete api">Enter text</label>
+        <input type="text" name="text" id="text" oninput="search()" />
+      </form>
+      <h4><u> Suggestions </u></h4>
+      <ol></ol>
+    </div>
+  </body>
 </html>
