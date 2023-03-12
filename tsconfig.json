@@ -18,5 +18,5 @@
     ]
   },
   "exclude": ["node_modules", "**/node_modules", "deployment/**/*.js"],
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts","src/**/*.txt","src/**/*.json"]
 }

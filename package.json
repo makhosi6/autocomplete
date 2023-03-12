@@ -12,7 +12,7 @@
     "start": "pm2 start build/src/http.js --time",
     "prod": "node deployment/src/http.js",
     "ws": "node build/src/ws.js",
-    "build": "javascript-obfuscator ./build --output ./deployment --disable-console-output false --rename-globals true --rename-properties true --rename-properties-mode safe"
+    "build": "javascript-obfuscator ./build/* --output ./deployment --disable-console-output false --rename-globals true --rename-properties true --rename-properties-mode safe"
   },
   "keywords": [],
   "author": "",
