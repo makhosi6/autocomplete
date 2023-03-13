@@ -28,7 +28,7 @@ function search(q, limit = 5, sort) {
         /// redis query command
         const command = `"${query}"|${query}*`;
         console.log({ command });
-        const results = yield client.ft.search('idx:words', `@word:${command}`);
+        const results = yield client.ft.search('idx:words', `${command}`);
         //{
         // SORTBY: {
         //   BY: 'word',

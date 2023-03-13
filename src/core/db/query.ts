@@ -18,7 +18,7 @@ export async function search(q: string, limit = 5, sort: any): Promise<Object> {
   const command = `"${query}"|${query}*`;
   console.log({command});
 
-  const results = await client.ft.search('idx:words', `@word:${command}`);
+  const results = await client.ft.search('idx:words', `${command}`);
   //{
   // SORTBY: {
   //   BY: 'word',
