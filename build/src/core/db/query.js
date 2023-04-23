@@ -23,24 +23,14 @@ function search(q, limit = 5, sort) {
     return __awaiter(this, void 0, void 0, function* () {
         /// prepare string for redis, remove or escape special characters
         const query = (0, helpers_1.redisEscape)(q.trim());
+        ///
+        const target = q[0].toLowerCase();
         ///set DB client
         const client = global.client;
         /// redis query command
-        const command = `"${query}"|${query}*`;
-        console.log({ command });
-        const results = yield client.ft.search('idx:words', `${command}`);
-        //{
-        // SORTBY: {
-        //   BY: 'word',
-        //   DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
-        // },
-        // limit
-        // LIMIT: {
-        //   from: 0,
-        //   size: 1000,
-        // },
-        //}
-        // );
+        console.log({ command: `${query} | ${query}*` });
+        console.log({ query });
+        const results = yield client.ft.search(`idx:words_${target}`, `${query} | ${query}* | "${query}"`);
         console.log(
         // {
         //   results: results.documents,
@@ -57,7 +47,7 @@ function search(q, limit = 5, sort) {
         const output = results.documents
             .map((doc) => doc.value.key)
             .sortBy(query)
-            .slice(0, limit);
+            .slice(0, results.length);
         /**
          * return data as an array and its length
          */
@@ -72,3 +62,25 @@ function search(q, limit = 5, sort) {
     });
 }
 exports.search = search;
+// https://redis.io/docs/stack/search/reference/query_syntax/
+//make three requests
+class _Request {
+    // - any word that match's
+    static exact(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {};
+        });
+    }
+    // - any word that starts with
+    static startWith(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {};
+        });
+    }
+    // - or any that contains
+    static contains(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {};
+        });
+    }
+}

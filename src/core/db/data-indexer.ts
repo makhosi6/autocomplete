@@ -5,7 +5,7 @@ import {SchemaFieldTypes} from '@redis/search/dist/commands';
 import '../utils/polyfill';
 import {redisEscape, uniqueId} from '../utils/helpers';
 
-export async function preBoot() {
+export async function preBoot(category: string) {
   try {
     console.log('CREATE...');
 
@@ -14,7 +14,7 @@ export async function preBoot() {
 
     // Documentation: https://redis.io/commands/ft.create/
     await client.ft.create(
-      'idx:words',
+      `idx:words_${category.toLowerCase()}`,
       {
         '$.word': {
           type: SchemaFieldTypes.TEXT,
@@ -26,7 +26,8 @@ export async function preBoot() {
       },
       {
         ON: 'JSON',
-        PREFIX: 'redis:words',
+        PREFIX: `redis:words_${category.toLowerCase()}`,
+        STOPWORDS: '0',
       }
     );
   } catch (e: any) {
@@ -82,11 +83,15 @@ export async function feedValues(category: string) {
       if (word === '' || !word) return;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
-      await client.json.set(`redis:words:${word}`, '$', {
-        word: redisEscape(word),
-        key: word,
-        // uid: uniqueId(word),
-      });
+      await client.json.set(
+        `redis:words_${category.toUpperCase()}:${word}`,
+        '$',
+        {
+          word: redisEscape(word),
+          key: word,
+          // uid: uniqueId(word),
+        }
+      );
     });
   } catch (error) {
     console.log('From feed values');

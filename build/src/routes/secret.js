@@ -68,7 +68,7 @@ secret.use(admin_1.adminHandler);
 /**
  * boot/create a Redis index
  */
-secret.get('/secret/boot', http_1.RedisHttpController.createAnIndex);
+secret.get('/secret/boot/:category', http_1.RedisHttpController.createAnIndex);
 /**
  * Update the authorized token/key list
  */

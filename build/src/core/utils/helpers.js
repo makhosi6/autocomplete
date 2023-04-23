@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.indices = exports.redisEscape = exports.killed = exports.fetch = exports.isAuth = exports.getWhiteList = exports.userIP = exports.analytics = exports.waitFor = exports.escapeSymbol = exports.hasSymbol = exports.uniqueId = void 0;
 const node_config_1 = require("./node.config");
 const { Headers } = require('node-fetch');
-// import {Headers} from 'node-fetch';
+require("./polyfill");
 const internal_cache = require('../cache/internal');
 function uniqueId(key) {
     //reverse the key
@@ -38,10 +38,12 @@ exports.hasSymbol = hasSymbol;
  * @return {string}
  */
 function escapeSymbol(value) {
-    value = value.replace(':', '\\:');
-    value = value.replace('_', '\\_');
-    value = value.replace('-', '\\-');
-    value = value.replace('@', '\\@');
+    value = value.replaceAll(':', '\\:');
+    // eslint-disable-next-line no-useless-escape, prettier/prettier
+    value = value.replaceAll(' ', '\\ ');
+    value = value.replaceAll('_', '\\_');
+    value = value.replaceAll('-', '\\-');
+    value = value.replaceAll('@', '\\@');
     return value;
 }
 exports.escapeSymbol = escapeSymbol;

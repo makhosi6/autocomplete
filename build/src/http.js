@@ -117,7 +117,7 @@ app.get('/home', (req, res) => {
 });
 // examples
 app.get('/examples/http', (req, res) => {
-    res.sendFile('index.html', { root: '/app/examples/http' });
+    res.sendFile('index.html', { root: './examples/http' });
 });
 app.get('/examples/ws', (req, res) => {
     res.sendFile('index.html', { root: '/app/examples/ws' });

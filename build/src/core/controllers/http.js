@@ -111,10 +111,15 @@ class RedisHttpController {
     /**
      * create a Redis data index
      */
-    static createAnIndex(_, response) {
+    static createAnIndex(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield (0, data_indexer_1.preBoot)();
+                /**
+                 * category
+                 */
+                const category = request.params.category;
+                //
+                yield (0, data_indexer_1.preBoot)(category);
                 response.status(200).send({
                     status: 200,
                     message: 'OK',

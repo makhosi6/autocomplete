@@ -1,3 +1,4 @@
+import {Request} from 'express';
 import {redisEscape} from '../utils/helpers';
 import '../utils/polyfill';
 /**
@@ -10,27 +11,17 @@ import '../utils/polyfill';
 export async function search(q: string, limit = 5, sort: any): Promise<Object> {
   /// prepare string for redis, remove or escape special characters
   const query = redisEscape(q.trim());
-
+  ///
+  const target = q[0].toLowerCase();
   ///set DB client
   const client = (global as any).client;
 
   /// redis query command
-  const command = `"${query}"|${query}*`;
+  const command = `${query} | ${query}* | "${query}"`;
   console.log({command});
+  console.log({query});
 
-  const results = await client.ft.search('idx:words', `${command}`);
-  //{
-  // SORTBY: {
-  //   BY: 'word',
-  //   DIRECTION: sort || 'ASC', //'DESC' or 'ASC (default if DIRECTION is not present)
-  // },
-  // limit
-  // LIMIT: {
-  //   from: 0,
-  //   size: 1000,
-  // },
-  //}
-  // );
+  const results = await client.ft.search(`idx:words_${target}`, command);
 
   console.log(
     // {
@@ -50,7 +41,7 @@ export async function search(q: string, limit = 5, sort: any): Promise<Object> {
   const output = results.documents
     .map((doc: any) => doc.value.key)
     .sortBy(query)
-    .slice(0, limit);
+    .slice(0, results.length);
   /**
    * return data as an array and its length
    */
@@ -62,4 +53,21 @@ export async function search(q: string, limit = 5, sort: any): Promise<Object> {
     data: sort.toUpperCase() === 'DESC' ? output.reverse() : output,
   };
   // const spellCheck = client.ft.spellcheck();
+}
+
+// https://redis.io/docs/stack/search/reference/query_syntax/
+//make three requests
+class _Request {
+  // - any word that match's
+  static async exact(query: string): Promise<Object> {
+    return {};
+  }
+  // - any word that starts with
+  static async startWith(query: string): Promise<Object> {
+    return {};
+  }
+  // - or any that contains
+  static async contains(query: string): Promise<Object> {
+    return {};
+  }
 }

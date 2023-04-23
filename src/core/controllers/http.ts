@@ -102,9 +102,18 @@ export class RedisHttpController {
   /**
    * create a Redis data index
    */
-  static async createAnIndex(_: any, response: Response): Promise<any> {
+  static async createAnIndex(
+    request: Request,
+    response: Response
+  ): Promise<any> {
     try {
-      await preBoot();
+      /**
+       * category
+       */
+      const category: string = request.params.category;
+
+      //
+      await preBoot(category);
 
       response.status(200).send({
         status: 200,

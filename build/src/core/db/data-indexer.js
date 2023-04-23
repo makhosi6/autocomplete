@@ -14,14 +14,14 @@ exports.feedValues = exports.preBoot = void 0;
 const commands_1 = require("@redis/search/dist/commands");
 require("../utils/polyfill");
 const helpers_1 = require("../utils/helpers");
-function preBoot() {
+function preBoot(category) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log('CREATE...');
             ///set DB client
             const client = global.client;
             // Documentation: https://redis.io/commands/ft.create/
-            yield client.ft.create('idx:words', {
+            yield client.ft.create(`idx:words_${category.toLowerCase()}`, {
                 '$.word': {
                     type: commands_1.SchemaFieldTypes.TEXT,
                     SORTABLE: 'UNF',
@@ -31,7 +31,8 @@ function preBoot() {
                 // '$.uid': {type: SchemaFieldTypes.TEXT, AS: 'uid'},
             }, {
                 ON: 'JSON',
-                PREFIX: 'redis:words',
+                PREFIX: `redis:words_${category.toLowerCase()}`,
+                STOPWORDS: '0',
             });
         }
         catch (e) {
@@ -79,7 +80,7 @@ function feedValues(category) {
                     return;
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
-                yield client.json.set(`redis:words:${word}`, '$', {
+                yield client.json.set(`redis:words_${category.toUpperCase()}:${word}`, '$', {
                     word: (0, helpers_1.redisEscape)(word),
                     key: word,
                     // uid: uniqueId(word),

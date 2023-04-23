@@ -2,7 +2,7 @@ import {SERVICE_TWO, ADMIN_KEY} from './node.config';
 import {Request, Response} from 'express';
 import {kill} from 'process';
 const {Headers} = require('node-fetch');
-// import {Headers} from 'node-fetch';
+import './polyfill';
 
 const internal_cache = require('../cache/internal');
 
@@ -30,10 +30,12 @@ export function hasSymbol(str: string) {
  * @return {string}
  */
 export function escapeSymbol(value: string) {
-  value = value.replace(':', '\\:');
-  value = value.replace('_', '\\_');
-  value = value.replace('-', '\\-');
-  value = value.replace('@', '\\@');
+  value = value.replaceAll(':', '\\:');
+  // eslint-disable-next-line no-useless-escape, prettier/prettier
+  value = value.replaceAll(' ', '\\ ');
+  value = value.replaceAll('_', '\\_');
+  value = value.replaceAll('-', '\\-');
+  value = value.replaceAll('@', '\\@');
   return value;
 }
 

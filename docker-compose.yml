@@ -2,20 +2,6 @@ version: '3.9'
 services:
 
 
-  # redis GUI tool
-  insight:
-    image: redislabs/redisinsight
-    ports:
-      - '8001:8001'
-    volumes:
-      - /var/lib/docker/volumes/redisinsight/_data:/data
-    restart: unless-stopped
-    depends_on:
-      - redis_words
-      - redis_auth
-
-
-
   # redis db
   redis_words:
     image: redis/redis-stack-server

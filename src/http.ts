@@ -138,7 +138,7 @@ app.get('/home', (req: Request, res: Response) => {
 });
 // examples
 app.get('/examples/http', (req: Request, res: Response) => {
-  res.sendFile('index.html', {root: '/app/examples/http'});
+  res.sendFile('index.html', {root: './examples/http'});
 });
 app.get('/examples/ws', (req: Request, res: Response) => {
   res.sendFile('index.html', {root: '/app/examples/ws'});

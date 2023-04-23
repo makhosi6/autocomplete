@@ -29,14 +29,14 @@
         };
 
         let response = await fetch(
-          `https://${
+          `http://${
             PORT ? HOST + ':' + PORT : HOST
           }/api/v1/autocomplete/${text}?limit=10`,
           requestOptions
         );
         let results = await response.json();
 
-        console.log({
+        console.log(HOST,{
           results,
         });
         let listEl = document.querySelector('ol');
