@@ -1,0 +1,1 @@
+{"version":3,"sources":["sourceMap"],"names":[],"mappings":"AAAA,a","sourcesContent":["\"use strict\";\n/// are you a paying client and did you pay\n/// white list tokens\n// https://www.npmjs.com/package/@jwerre/rate-limit-redis == maybe i can clone and update whitelist\n//# sourceMappingURL=auth.js.map"]}

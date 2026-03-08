@@ -14,3 +14,4 @@ const analyticsHandler = (request, response, next) => {
     next();
 };
 exports.analyticsHandler = analyticsHandler;
+//# sourceMappingURL=analytics.js.map

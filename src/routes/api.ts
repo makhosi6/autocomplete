@@ -21,11 +21,12 @@ api.use(throttle);
  */
 api.use(authorization);
 /**
- * http search
+ * Autocomplete API - path param: /api/v1/autocomplete/{query}
+ * Fetches words that closely match the query, sorted by relevance
  */
-api.get('/api/v1/autocomplete/:key', (request: Request, response: Response) =>
+api.get('/api/v1/autocomplete/search/:query', (request: Request, response: Response) =>
   response.statusCode !== 429
-    ? RedisHttpController.getAll(request, response)
+    ? RedisHttpController.search(request, response)
     : response.status(response.statusCode).send({
         status: 429,
         message: 'Too Many Requests',
@@ -33,8 +34,44 @@ api.get('/api/v1/autocomplete/:key', (request: Request, response: Response) =>
 );
 
 /**
- * http search
+ * Autocomplete API - query param: /api/v1/autocomplete/search?q={query}
+ * (kept under the autocomplete namespace to avoid clashing with other
+ * generic /search endpoints in the application)
  */
-api.get('/api/v1/autocomplete', RedisHttpController.getAll);
+api.get('/api/v1/autocomplete/search', RedisHttpController.search);
+
+/**
+ * Autocomplete API - query param: /api/v1/autocomplete?q={query}
+ */
+api.get('/api/v1/autocomplete/suggest/:query', (request: Request, response: Response) =>
+  response.statusCode !== 429
+    ? RedisHttpController.suggest(request, response)
+    : response.status(response.statusCode).send({
+        status: 429,
+        message: 'Too Many Requests',
+      })
+);
+
+/** 
+ * Autocomplete API - query param: /api/v1/autocomplete/suggest?q={query}
+ */
+api.get('/api/v1/autocomplete/suggest', RedisHttpController.suggest);
+
+/**
+ * Autocomplete API - path param: /api/v1/autocomplete/aggregate/{query}
+ */
+api.get('/api/v1/autocomplete/aggregate', RedisHttpController.aggregate);
+
+/**
+ * Autocomplete API - path param: /api/v1/autocomplete/aggregate/{query}
+ */
+api.get('/api/v1/autocomplete/aggregate/:query', (request: Request, response: Response) =>
+  response.statusCode !== 429
+    ? RedisHttpController.aggregate(request, response)
+    : response.status(response.statusCode).send({
+        status: 429,
+        message: 'Too Many Requests',
+      })
+);
 
 export default api;

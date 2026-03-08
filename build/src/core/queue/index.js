@@ -17,3 +17,4 @@ queue.on('error', (next, job) => {
     next();
 });
 module.exports = queue;
+//# sourceMappingURL=index.js.map

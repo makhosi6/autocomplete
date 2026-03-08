@@ -4,3 +4,4 @@ class HttpErrors {
     $401() { }
     $500() { }
 }
+//# sourceMappingURL=exceptions.js.map

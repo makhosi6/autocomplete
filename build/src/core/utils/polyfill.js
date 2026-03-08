@@ -25,3 +25,4 @@ Array.prototype.sortBy = function sortBy(pattern) {
     console.log({ output });
     return output;
 };
+//# sourceMappingURL=polyfill.js.map

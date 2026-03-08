@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -8,8 +8,8 @@ RUN npm install
 
 COPY . .
 
-# ENV PORT=3001
+RUN npm run compile
 
-# EXPOSE 3001
+EXPOSE 3001
 
 CMD [ "node", "build/src/http.js" ]

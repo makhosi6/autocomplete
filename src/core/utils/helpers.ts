@@ -1,7 +1,5 @@
 import {SERVICE_TWO, ADMIN_KEY} from './node.config';
-import {Request, Response} from 'express';
-import {kill} from 'process';
-const {Headers} = require('node-fetch');
+import {Request} from 'express';
 import './polyfill';
 
 const internal_cache = require('../cache/internal');
@@ -72,18 +70,17 @@ export async function analytics(request: Request) {
     console.log(userIP(request));
     console.log(request.ip);
 
-    //auth headers
+    //auth headers (using Node.js built-in fetch/Headers)
     const myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ' + ADMIN_KEY);
+    myHeaders.append('Content-Type', 'application/json');
 
     console.log({auth: request.headers.authorization});
 
     const data = {
       uuky: '_placeholder',
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       x_token: request.headers.authorization
-        ? request.headers.authorization.split(' ')[1]
+        ? String(request.headers.authorization).split(' ')[1]
         : '',
       x_ip: userIP(request),
       x_query: request.params.key || 'unknown',
@@ -146,18 +143,18 @@ export const getWhiteList = async function (): Promise<Array<object>> {
     const myHeaders = new Headers();
     myHeaders.append('Authorization', 'Bearer ' + ADMIN_KEY);
 
-    const requestOptions = {
+    const requestOptions: RequestInit = {
       method: 'GET',
       headers: myHeaders,
       redirect: 'follow',
     };
 
-    const response: Response = await fetch(
+    const response = await fetch(
       SERVICE_TWO + '/tokens',
       requestOptions
     );
 
-    console.log('TOKENS RESPONSE', await response.statusCode);
+    console.log('TOKENS RESPONSE', response.status);
 
     const data = (await response.json()) || [];
     console.log({data});
@@ -188,12 +185,6 @@ export const isAuth = async (token: string): Promise<boolean> => {
   console.log('\x1b[43m%s\x1b[0m', '🚧🚧🚧🚧 USER IS UNDEFINED');
   return false;
 };
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-export const fetch = (...args) =>
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  import('node-fetch').then(({default: fetch}) => fetch(...args));
 /**
  * If and when the app dies or it's stopped
  */

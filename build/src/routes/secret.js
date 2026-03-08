@@ -82,3 +82,4 @@ secret.delete('/secret/whitelist/', removeFrmWhitelist);
  */
 secret.get('/secret/feed-data/:category', http_1.RedisHttpController.feedData);
 exports.default = secret;
+//# sourceMappingURL=secret.js.map

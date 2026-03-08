@@ -51,7 +51,7 @@ const app = express();
  */
 // create a rotating write stream
 const accessLogStream = rfs.createStream('access.log', {
-    interval: '1d',
+    interval: '1d', // rotate daily
     path: path.join(__dirname, 'log'),
 });
 // setup the logger
@@ -152,3 +152,4 @@ process.once('disconnect', helpers_1.killed);
 /// CERTIFICATES
 // https://www.namecheap.com/support/knowledgebase/article.aspx/9705/33/installing-an-ssl-certificate-on-nodejs/
 // https://javascript.plainenglish.io/generate-ssl-certificate-using-node-js-for-web-apps-73d452ad5898
+//# sourceMappingURL=http.js.map

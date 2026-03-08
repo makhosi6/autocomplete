@@ -1,0 +1,1 @@
+{"version":3,"sources":["sourceMap"],"names":["a3_0x4ee127"],"mappings":"AAAA,a,sgCACA,MAAMA,WAAW,CACb,C,kBAAA,G,EACA,C,kBAAA,G,EACA,C,kBAAA,G,EAHa","sourcesContent":["\"use strict\";\nclass HttpErrors {\n    $400() { }\n    $401() { }\n    $500() { }\n}\n//# sourceMappingURL=exceptions.js.map"]}
